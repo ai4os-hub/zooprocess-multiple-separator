@@ -1,0 +1,38 @@
+{
+    "title": "zooprocess multiple separator",
+    "summary": "This module processes images produced by ZooProcess that may contain multiple objects and separates the objects by drawing lines between them. This allows the rest of the processing to work on individual objects, which is necessary for their classification and measurements.",
+    "description": [
+        "zooprocess_multiple_separator is an application using the DEEPaaS API.\n",
+        "This module processes images produced by ZooProcess that may contain multiple objects and separates the objects by drawing lines between them. This allows the rest of the processing to work on individual objects, which is necessary for their classification and measurements."
+    ],
+    "keywords": [
+        "docker",
+        "api-v2"
+    ],
+    "license": "AGPL-3.0-only",
+    "date_creation": "2024-09-20",
+    "dataset_url": "http://add-some-url-pointing-to-your-dataset.com",
+    "sources": {
+		"dockerfile_repo": "https://github.com/ai4os-hub/zooprocess-multiple-separator/zooprocess-multiple-separator",
+		"docker_registry_repo": "ai4oshub/zooprocess-multiple-separator",
+		"code": "https://github.com/ai4os-hub/zooprocess-multiple-separator/zooprocess-multiple-separator",
+		"ai4_template": "ai4-template/2.1.5"
+    },
+    "continuous_integration": {
+        "build_status_badge": "https://jenkins.services.ai4os.eu/buildStatus/icon?job=AI4OS-hub/zooprocess-multiple-separator/main",
+        "build_status_url": "https://jenkins.services.ai4os.eu/job/AI4OS-hub/job/zooprocess-multiple-separator/job/main/"
+    },
+    "tosca": [
+        {
+            "title": "Mesos (CPU)",
+            "url": "https://raw.githubusercontent.com/indigo-dc/tosca-templates/master/deep-oc/deep-oc-marathon-webdav.yml",
+            "inputs": [
+                "rclone_conf",
+                "rclone_url",
+                "rclone_vendor",
+                "rclone_user",
+                "rclone_pass"
+            ]
+        }
+    ]
+}

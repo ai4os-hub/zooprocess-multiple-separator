@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zooprocess-multiple-separator"
+authors = [
+    { name = "Jean-Olivier Irisson", email = "jean-olivier.irisson@imev-mer.fr" },
+    { name = "Marine Colin", email = "marine@fotonower.com" },
+    { name = "Emma Amblard", email = "emma@fotonower.com" },
+    { name = "Victor Reutenauer", email = "victor@fotonower.com" },
+]
+description = "This module processes images produced by ZooProcess that may contain multiple objects and separates the objects by drawing lines between them. This allows the rest of the processing to work on individual objects, which is necessary for their classification and measurements."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "AGPL-3.0-only" }
+classifiers = [
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: AI/ML/DL Researchers",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+]
+dynamic = ["version", "dependencies"]
+
+[project.urls]
+"Homepage" = "https://github.com/ai4os-hub/zooprocess-multiple-separator/zooprocess-multiple-separator"
+"Bug Tracker" = "https://github.com/ai4os-hub/zooprocess-multiple-separator/zooprocess-multiple-separator/issues"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+env = [
+    "ZOOPROCESS_MULTIPLE_SEPARATOR_DATA_PATH=tests/data",
+    "ZOOPROCESS_MULTIPLE_SEPARATOR_MODELS_PATH=tests/models",
+]
+# Allow test files to share names
+# https://docs.pytest.org/en/7.1.x/explanation/goodpractices.html
+addopts = "--import-mode=importlib"
+
+[tool.setuptools]
+packages = [ "zooprocess_multiple_separator" ]
+
+[tool.setuptools.package-dir]
+"zooprocess_multiple_separator" = "zooprocess_multiple_separator"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+version = { file = "VERSION" }
+
+[project.entry-points."deepaas.v2.model"]
+zooprocess_multiple_separator = "zooprocess_multiple_separator.api"

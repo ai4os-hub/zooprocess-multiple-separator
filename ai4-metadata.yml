@@ -1,0 +1,62 @@
+metadata_version: 2.0.0
+title: zooprocess multiple separator
+summary: "This module processes images produced by ZooProcess that may contain multiple objects and separates the objects by drawing lines between them. This allows the rest of the processing to work on individual objects, which is necessary for their classification and measurements."
+description: |-
+  zooprocess_multiple_separator is an application using the DEEPaaS API.
+  This module processes images produced by ZooProcess that may contain multiple objects and separates the objects by drawing lines between them. This allows the rest of the processing to work on individual objects, which is necessary for their classification and measurements.
+# doi: http://add-some-DOI-url.com
+dates:
+  created: 2024-09-20
+  updated: 2024-09-20
+links:
+  ai4_template: ai4-template/2.1.5
+  source_code: https://github.com/ai4os-hub/zooprocess-multiple-separator/zooprocess-multiple-separator
+  docker_image: ai4oshub/zooprocess-multiple-separator
+  # documentation: http://add-some-documentation.com
+  # dataset: http://add-some-url-pointing-to-your-dataset.com
+  # weights: http://add-some-weights-url.com
+  # citation: http://add-some-DOI-url.com
+  # base_model: http://add-some-link-to-another-model.com
+#tags:        # required property, add user-defined tags that you consider relevant
+  # - deep learning
+#tasks:       # required property, uncomment together with relevant items
+  # - Computer Vision
+  # - Natural Language Processing
+  # - Time Series
+  # - Recommender Systems
+  # - Anomaly Detection
+  # - Regression
+  # - Classification
+  # - Clustering
+  # - Dimensionality Reduction
+  # - Generative Models
+  # - Graph Neural Networks
+  # - Optimization
+  # - Reinforcement Learning
+  # - Transfer Learning
+  # - Uncertainty Estimation
+  # - Other
+#categories:  # required property, uncomment together with relevant items
+  # - AI4 trainable
+  # - AI4 pre trained
+  # - AI4 inference
+  # - AI4 tools
+#libraries:   # required property, uncomment together with relevant items
+  # - TensorFlow
+  # - PyTorch
+  # - Keras
+  # - Scikit-learn
+  # - XGBoost
+  # - LightGBM
+  # - CatBoost
+  # - Other
+#data-type:   # optional, uncomment together with relevant items
+  # - Image
+  # - Text
+  # - Time Series
+  # - Tabular
+  # - Graph
+  # - Audio
+  # - Video
+  # - Other
+  
