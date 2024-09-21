@@ -39,13 +39,14 @@ def predict_mask_panoptic(image_path, model, processor, device, score_threshold=
           (e.g. to remove the scale bar for example)
     
     Returns:
+        panoptic_masks (np.ndarray): the labels of the retained masks.
+        image (Image): input image, possibly after crop.
+        binary_image (np.ndarray): thresholded image, 0 for background.
         dist_map (np.ndarray): array of the same dimension as the input image
           (after crop) constaining the map of the distance from each pixel to
           the edge of the sum of all retained masks.
         mask_centers (list of int): list of the coordinates of the center of 
           each retained mask.
-        image (Image): input image, possibly after crop.
-        binary_image (np.ndarray): thresholded image, 0 for background.
         scores (float): average of the scores of the retained masks.
     """
     image = Image.open(image_path)
@@ -72,50 +73,65 @@ def predict_mask_panoptic(image_path, model, processor, device, score_threshold=
         outputs = model(img_tens)
     results = processor.post_process_panoptic_segmentation(outputs, target_sizes=[image.size[::-1]])[0]
     panoptic_masks = results["segmentation"].cpu().numpy()
-   
-    # get binary image separating the background (0) from objects (1)
-    # this assumes the background is perfectly white
+    # plt.clf(); io.imshow(panoptic_masks); plt.show()
+
+    # keep only those with a high enough score
+    selected_masks_ids = [seg["id"]  for seg in results["segments_info"]\
+      if seg["label_id"] == 1 and seg["score"]>score_threshold]
+      # NB: label_id == 1 for objects, 0 for background
+    
+    # compute their average score, as an indication of the quality of the segmentation
+    scores = [seg["score"] for seg in results["segments_info"]\
+      if seg["id"] in selected_masks_ids]
+
+    # assign everything else as background (=0)
+    panoptic_masks[~ np.isin(panoptic_masks, selected_masks_ids)] = 0
+    # plt.clf(); io.imshow(panoptic_masks); plt.show()
+
+    # Now we need to detect large grey regions missed by the panoptic segmenter
+    # and consider them as new masks, to improve the final segmentation
+
+    # get binary image separating the background (0) from grey regions (1)
     gray_img = np.array(image.convert('L'))
     binary_image = (gray_img < 255).astype(float)
+    # NB: using < 255 assumes the background is perfectly white
+    # plt.clf(); io.imshow(gray_img); plt.show()
 
-    # Compute distance map and mask centers
+    # detect missing regions = grey regions outside of masks detected by the panoptic segmenter
+    missing_regions = np.logical_and(panoptic_masks == 0, binary_image != 0)
+    # plt.clf(); io.imshow(missing_regions); plt.show()
+    missing_regions = label(missing_regions, background=0, return_num=False, connectivity=2)
+    # plt.clf(); io.imshow(missing_regions); plt.show()
+    
+    # keep only large missing regions and add them as new masks
+    missing_regions_ids, nb_pixels = np.unique(missing_regions, return_counts=True)
+    max_mask_id = np.max(selected_masks_ids)
+    for i in np.delete(missing_regions_ids, 0):
+        # NB: do not consider region 0 which is the background
+        # if large enough, add it to the masks
+        if nb_pixels[i]>800:
+            # TODO make the threshold number of pixels (800 here) configurable
+            max_mask_id = max_mask_id+1  # increase the mask id counter
+            panoptic_masks[missing_regions == missing_regions_ids[i]] = max_mask_id
+            selected_masks_ids.append(max_mask_id)
+    # plt.clf(); io.imshow(panoptic_masks); plt.show()
+    
+    # compute distance map (distance to the edge of each mask), mask centers and scores
     dist_map = np.zeros(panoptic_masks.shape)
     mask_centers = list()
-    scores = list()
+    for mask_id in selected_masks_ids:
+        single_mask = (panoptic_masks == mask_id).astype(int)
+        # distance map
+        dist = ndi.distance_transform_edt(single_mask)
+        dist_map += dist
+        # highest point, considered as the mask's center
+        center_coords = np.unravel_index(np.argmax(dist, axis=None), dist.shape)
+        mask_centers.append((center_coords[0], center_coords[1]))
+    # plt.clf(); io.imshow(dist_map); plt.show()
+    # mask_centers
+    # TODO this should really be in the watershed function
 
-    list_segments_obj_detectes = [i for i,d in enumerate(results["segments_info"])\
-      if results["segments_info"][i]["label_id"] == 1 and results["segments_info"][i]["score"]>score_threshold]
-
-    for segment_info in results["segments_info"]:
-        if segment_info["score"] < score_threshold:
-            continue
-        if segment_info["label_id"] == 0:
-            background_img = np.full(gray_img.shape,len(list_segments_obj_detectes)+1)
-            for i in list_segments_obj_detectes:
-                background_img[panoptic_masks == results["segments_info"][i]["id"]] = 0
-            background_img[binary_image == 0] = 0
-            obj_non_detect = label(background_img, background=0, return_num=False, connectivity=2)
-            cpt_non_detect=0
-            for label_value in np.unique(obj_non_detect):
-                if label_value == 0:  # ignore background
-                    continue
-                if (obj_non_detect == label_value).astype(int).sum() > 800:  # very small regions are considered as background
-                    single_mask = (obj_non_detect == label_value).astype(int)
-                    dist = ndi.distance_transform_edt(single_mask)
-                    dist_map += dist
-                    ind = np.unravel_index(np.argmax(dist, axis=None), dist.shape)
-                    mask_centers.append((ind[0], ind[1]))
-                    scores.append(segment_info["score"])
-                    cpt_non_detect+=1
-        else:
-            single_mask = (panoptic_masks == segment_info["id"]).astype(int)
-            dist = ndi.distance_transform_edt(single_mask)
-            dist_map += dist
-            ind = np.unravel_index(np.argmax(dist, axis=None), dist.shape)
-            mask_centers.append((ind[0], ind[1]))
-            scores.append(segment_info["score"])
-
-    return dist_map, mask_centers, image, binary_image, np.mean(scores)
+    return panoptic_masks, image, binary_image, dist_map, mask_centers, np.mean(scores)
 
 
 def get_watershed_result(mask_map, mask_centers, mask=None):

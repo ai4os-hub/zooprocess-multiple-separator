@@ -151,7 +151,7 @@ def predict(**kwargs):
     """
     
     # get predicted masks
-    mask_sum, mask_centers, img, score = utils.predict_mask_panoptic(
+    masks, img, binary_img, masks_distance_map, masks_centers, score = utils.predict_mask_panoptic(
         kwargs['image'].filename,
         model, processor, device,
         kwargs['min_mask_score'], kwargs['bottom_crop']
@@ -159,7 +159,7 @@ def predict(**kwargs):
 
     # apply watershed algorithm
     # = from each center find connected regions and their separation
-    watershed_labels = utils.get_watershed_result(mask_sum, mask_centers, mask=binary_img)
+    watershed_labels = utils.get_watershed_result(masks_distance_map, masks_centers, mask=binary_img)
     # io.imshow(watershed_labels); plt.show()
 
     # compute output separations
