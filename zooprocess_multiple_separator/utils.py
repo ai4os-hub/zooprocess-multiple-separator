@@ -53,7 +53,7 @@ def predict_mask_panoptic(image_path, model, processor, device, score_threshold=
 
     # (possibly) crop the bottom of the image
     w, h = image.size
-    image = trf.crop(v, 0, 0, h-bottom_crop, w)
+    image = trf.crop(image, 0, 0, h-bottom_crop, w)
 
     # create and preprocess the tensor
     img_tens = trf.to_image(image.convert("RGB"))
