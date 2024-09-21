@@ -84,7 +84,7 @@ def predict_mask_panoptic(image_path, model, processor, device, score_threshold=
     scores = list()
 
     list_segments_obj_detectes = [i for i,d in enumerate(results["segments_info"])\
-      if results["segments_info"][i]["label_id"] ==1 and results["segments_info"][i]["score"]>0.9]
+      if results["segments_info"][i]["label_id"] == 1 and results["segments_info"][i]["score"]>score_threshold]
 
     for segment_info in results["segments_info"]:
         if segment_info["score"] < score_threshold:
