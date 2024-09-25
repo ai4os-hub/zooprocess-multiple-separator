@@ -46,16 +46,16 @@ ENV LANG C.UTF-8
 # Set the working directory
 WORKDIR /srv
 
-# Install rclone (needed if syncing with NextCloud for training; otherwise remove)
-RUN curl -O https://downloads.rclone.org/rclone-current-linux-amd64.deb && \
-    dpkg -i rclone-current-linux-amd64.deb && \
-    apt install -f && \
-    mkdir /srv/.rclone/ && \
-    touch /srv/.rclone/rclone.conf && \
-    rm rclone-current-linux-amd64.deb && \
-    rm -rf /var/lib/apt/lists/*
-
-ENV RCLONE_CONFIG=/srv/.rclone/rclone.conf
+# # Install rclone (needed if syncing with NextCloud for training; otherwise remove)
+# RUN curl -O https://downloads.rclone.org/rclone-current-linux-amd64.deb && \
+#     dpkg -i rclone-current-linux-amd64.deb && \
+#     apt install -f && \
+#     mkdir /srv/.rclone/ && \
+#     touch /srv/.rclone/rclone.conf && \
+#     rm rclone-current-linux-amd64.deb && \
+#     rm -rf /var/lib/apt/lists/*
+# 
+# ENV RCLONE_CONFIG=/srv/.rclone/rclone.conf
 
 # Disable FLAAT authentication by default
 ENV DISABLE_AUTHENTICATION_AND_ASSUME_AUTHENTICATED_USER yes
