@@ -37,9 +37,11 @@ logger.setLevel(config.LOG_LEVEL)
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 
-
-# make sure the objects are available everywhere after the application starts
-global model, processor, device
+# initialise global variables
+model = None
+processor = None
+# check if a GPU is available, fallback to CPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 @_catch_error
@@ -75,6 +77,9 @@ def warm():
     Load model upon application startup
     """
 
+    # make sure the objects are available everywhere after the application starts
+    global model, processor, device
+
     # NB: get the model file from a github release
     model_zip_path = os.path.join(BASE_DIR,
                                  'models',
@@ -92,9 +97,6 @@ def warm():
         logger.info("Unzipping model files")
         with zipfile.ZipFile(model_zip_path, 'r') as model_zip:
             model_zip.extractall(model_zip_path.strip(model_zip_path.split("/")[-1]))    
-    
-    # check if a GPU is available, fallback to CPU
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # load the model (possibly on GPU)
     logger.info("Loading model")
