@@ -74,6 +74,9 @@ RUN git clone -b $branch https://github.com/ai4os-hub/zooprocess-multiple-separa
     pip3 install --no-cache-dir -e . && \
     cd ..
 
+# Download weights from github release
+ADD https://github.com/ai4os-hub/zooprocess-multiple-separator/releases/download/v1.0.0/learn_plankton_pano_plus5000_8epoch.zip zooprocess-multiple-classifier/models/learn_plankton_pano_plus5000_8epoch.zip
+
 # Open ports: DEEPaaS (5000), Monitoring (6006), Jupyter (8888)
 EXPOSE 5000 6006 8888
 
