@@ -38,6 +38,10 @@ logger.setLevel(config.LOG_LEVEL)
 BASE_DIR = Path(__file__).resolve().parents[1]
 
 
+# make sure the objects are available everywhere after the application starts
+global model, processor, device
+
+
 @_catch_error
 def get_metadata():
     """Returns a dictionary containing metadata information about the module.
@@ -70,8 +74,6 @@ def warm():
     """
     Load model upon application startup
     """
-    # make sure the objects are available everywhere after the application starts
-    global model, processor, device
 
     # NB: get the model file from a github release
     model_zip_path = os.path.join(BASE_DIR,

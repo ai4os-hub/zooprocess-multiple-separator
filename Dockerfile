@@ -13,7 +13,7 @@
 ARG tag=2.4.0-cuda12.1-cudnn9-runtime
 
 # Base image, e.g. tensorflow/tensorflow:2.9.1
-FROM pytorch/PyTorch:${tag}
+FROM pytorch/pytorch:${tag}
 
 LABEL maintainer='Jean-Olivier Irisson,Marine Colin,Emma Amblard,Victor Reutenauer'
 LABEL version='0.0.1'
@@ -69,7 +69,7 @@ RUN git clone https://github.com/ai4os/deep-start /srv/.deep-start && \
 ENV SHELL /bin/bash
 
 # Install user app
-RUN git clone -b $branch https://github.com/ai4os-hub/zooprocess-multiple-separator/zooprocess-multiple-separator && \
+RUN git clone -b $branch https://github.com/ai4os-hub/zooprocess-multiple-separator && \
     cd  zooprocess-multiple-separator && \
     pip3 install --no-cache-dir -e . && \
     cd ..
