@@ -36,6 +36,8 @@ deepaas-run --listen-ip 0.0.0.0
 │   ├── config.py          <- Configuration file to define Constants used across zooprocess_multiple_separator
 │   │
 │   └── misc.py            <- Misc functions that were helpful accross projects
+│   │
+│   └── utils.py           <- Contains the actual code to perform inference
 │
 ├── data/                  <- Folder to store the data
 │
