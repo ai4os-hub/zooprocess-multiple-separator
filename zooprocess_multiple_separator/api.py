@@ -103,6 +103,7 @@ def warm():
     processor = MaskFormerImageProcessor.from_pretrained(model_path)
     model = Mask2FormerForUniversalSegmentation.from_pretrained(model_path)
     model = model.to(device)
+    print(f"model (api): {model}")
 
 
 def get_predict_args():
@@ -112,27 +113,27 @@ def get_predict_args():
     arg_dict = {
         "image": fields.Field(
             metadata={
-                'required': True,
                 'type': "file",
                 'location': "form",
                 'description': "An image containing object(s) to separate."
-            }
+            },
+            required=True
         ),
-        "min_mask_score": fields.Float(
+       "min_mask_score": fields.Float(
             metadata={
-                'required':False,
-                'missing': 0.9,
                 'description': "The minimum confidence score for a mask to be selected. [Default: 0.9]"
-            }
-        ),
-        "bottom_crop": fields.Int(
+            },
+            required=False,
+            load_default=0.9
+       ),
+       "bottom_crop": fields.Int(
             metadata={
-                'required':False,
-                'missing': 31,
                 'description': "Number of pixels to crop from the bottom of the\
                 image (e.g. to remove the scale bar). [Default: 31px]"
-            }
-        )
+            },
+            required=False,
+            load_default=31,
+       )
     }
 
     return arg_dict
