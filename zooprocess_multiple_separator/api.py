@@ -103,7 +103,6 @@ def warm():
     processor = MaskFormerImageProcessor.from_pretrained(model_path)
     model = Mask2FormerForUniversalSegmentation.from_pretrained(model_path)
     model = model.to(device)
-    print(f"model (api): {model}")
 
 
 def get_predict_args():
@@ -165,7 +164,7 @@ def predict(**kwargs):
     """
     Compute the white lines to separate objects
     """
-    
+
     # get predicted masks
     masks, img, binary_img, masks_distance_map, masks_centers, score = utils.predict_mask_panoptic(
         kwargs['image'].filename,
@@ -201,8 +200,10 @@ def predict(**kwargs):
     # 
     # plt.show()
 
-    return separation_mask, str(score)
-
+    #return separation_mask, str(score)
+    return {"separation_mask": str(separation_mask),
+            "score": score
+           }
 
 # def get_train_args():
 #     return {}
