@@ -205,9 +205,10 @@ def predict(**kwargs):
             "score": score
            }
 
-# def get_train_args():
-#     return {}
-#
+# uncomment to make deepaas-cli working
+def get_train_args():
+    return {}
+
 #
 # def train(**kwargs):
 #     return None
