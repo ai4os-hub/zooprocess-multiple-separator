@@ -112,27 +112,27 @@ def get_predict_args():
     arg_dict = {
         "image": fields.Field(
             metadata={
-                'required': True,
                 'type': "file",
                 'location': "form",
                 'description': "An image containing object(s) to separate."
-            }
+            },
+            required=True
         ),
-        "min_mask_score": fields.Float(
+       "min_mask_score": fields.Float(
             metadata={
-                'required':False,
-                'missing': 0.9,
                 'description': "The minimum confidence score for a mask to be selected. [Default: 0.9]"
-            }
-        ),
-        "bottom_crop": fields.Int(
+            },
+            required=False,
+            load_default=0.9
+       ),
+       "bottom_crop": fields.Int(
             metadata={
-                'required':False,
-                'missing': 31,
                 'description': "Number of pixels to crop from the bottom of the\
                 image (e.g. to remove the scale bar). [Default: 31px]"
-            }
-        )
+            },
+            required=False,
+            load_default=31,
+       )
     }
 
     return arg_dict
@@ -164,7 +164,7 @@ def predict(**kwargs):
     """
     Compute the white lines to separate objects
     """
-    
+
     # get predicted masks
     masks, img, binary_img, masks_distance_map, masks_centers, score = utils.predict_mask_panoptic(
         kwargs['image'].filename,
@@ -200,12 +200,15 @@ def predict(**kwargs):
     # 
     # plt.show()
 
-    return separation_mask, str(score)
+    #return separation_mask, str(score)
+    return {"separation_mask": str(separation_mask),
+            "score": score
+           }
 
+# uncomment to make deepaas-cli working
+def get_train_args():
+    return {}
 
-# def get_train_args():
-#     return {}
-#
 #
 # def train(**kwargs):
 #     return None
