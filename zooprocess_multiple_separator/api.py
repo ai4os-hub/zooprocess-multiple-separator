@@ -169,11 +169,17 @@ def predict(**kwargs):
     # axes[1,1].set_title("Extracted line(s)")
     # 
     # plt.show()
+    
+    # encode the lines to draw as a sparse image
+    sep_coords = np.where(sep_lines==1)
+    sep_coords = [sep.tolist() for sep in sep_coords]
+    shape = sep_lines.shape
 
-    #return separation_mask, str(score)
-    return {"separation_mask": str(separation_mask),
-            "score": score
-           }
+    return {
+      "separation_coordinates": sep_coords,
+      "image_shape": shape,
+      "score": score
+    }
 
 # uncomment to make deepaas-cli working
 def get_train_args():
