@@ -148,15 +148,11 @@ def predict(**kwargs):
 
     # apply watershed algorithm
     # = from each center find connected regions and their separation
-    watershed_labels = utils.get_watershed_result(masks_distance_map, masks_centers, mask=binary_img)
-    # io.imshow(watershed_labels); plt.show()
-
-    # compute output separations
-    separation_mask = np.zeros_like(watershed_labels)
-    separation_mask[watershed_labels == 0] = 1
-    # io.imshow(separation_mask); plt.show()
+    sep_lines = utils.get_watershed_result(masks_distance_map, masks_centers, mask=binary_img)
+    # NB: this has 0 as the background and 1 where the separation lines should be drawn
 
     # # produce a diagnostic plot
+    # # TODO to review, not ure this still works
     # fig, axes = plt.subplots(nrows=2, ncols=2,
     #                          subplot_kw={'xticks': [], 'yticks': []})
     # 

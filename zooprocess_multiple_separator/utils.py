@@ -181,8 +181,4 @@ def get_watershed_result(mask_map, mask_centers, mask=None):
         boundaries[(labels == 0) | (labels == value)] = 0
         lines[boundaries == 1] = 1
 
-    labels_with_lines = labels
-    labels_with_lines[labels_with_lines == 0] = -1
-    labels_with_lines[lines == 1] = 0
-
-    return labels_with_lines
+    return lines
