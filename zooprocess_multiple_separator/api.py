@@ -27,10 +27,6 @@ from zooprocess_multiple_separator import utils
 import zipfile
 from transformers import Mask2FormerForUniversalSegmentation, MaskFormerImageProcessor
 
-# for development
-# import matplotlib.pyplot as plt
-# from importlib import reload
-
 # set up logging
 logger = logging.getLogger(__name__)
 logger.setLevel(config.LOG_LEVEL)
@@ -136,28 +132,6 @@ def get_predict_args():
     }
 
     return arg_dict
-
-
-# # DEVELOP
-# # Test API
-# from zooprocess_multiple_separator import api
-# class Img():
-#   def __init__(self, filename=None):
-#     self.filename=None
-# image=Img()
-# image.filename="0be42a52fc61857c6a83eec1fffe485f_38088162.png"
-#
-# api.warm()
-# foo = api.predict(image=image, min_mask_score=0.9, bottom_crop=0)
-# from matplotlib import pyplot as plt
-# plt.clf(); plt.imshow(foo[0]); plt.show()
-#
-# # Test utils functions
-# from zooprocess_multiple_separator import utils
-# panoptic_masks, image, binary_image, dist_map, mask_centers, score = utils.predict_mask_panoptic(image_path='m_0595.jpg', model=model, processor=processor, device=device, score_threshold=0.9, bottom_crop=31)
-# plt.clf(); io.imshow(dist_map); plt.show()
-# plt.clf(); io.imshow(image); plt.show()
-# api.predict(image=image, min_mask_score=0.9, bottom_crop=31)
 
 @_catch_error
 def predict(**kwargs):
