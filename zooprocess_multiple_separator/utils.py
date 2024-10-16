@@ -44,6 +44,7 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
         image (Image): input image, possibly after crop.
     """
     image = Image.open(image_path)
+    # plt.clf(); plt.imshow(image); plt.show()
 
     # (possibly) crop the bottom of the image
     w, h = image.size
@@ -110,6 +111,19 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
             panoptic_masks[missing_regions == missing_regions_ids[i]] = max_mask_id
             selected_masks_ids.append(max_mask_id)
     # plt.clf(); plt.imshow(panoptic_masks); plt.show()
+    
+    # pad again with bottom crop (if not zero)
+    # this allows to give a result that has exactly the same shape as the input
+    if bottom_crop > 0:
+        h,w = panoptic_masks.shape
+        crop = np.zeros((bottom_crop, w))
+        panoptic_masks = np.concatenate((panoptic_masks, crop), axis=0)
+        binary_img = np.concatenate((binary_img, crop), axis=0)
+        crop[:,:] = 255
+        gray_img = np.concatenate((gray_img, crop), axis=0)
+        # plt.clf(); plt.imshow(gray_img); plt.show()
+        # plt.clf(); plt.imshow(binary_img); plt.show()
+        # plt.clf(); plt.imshow(panoptic_masks); plt.show()
 
     return panoptic_masks, avg_score, gray_img, binary_img
 
