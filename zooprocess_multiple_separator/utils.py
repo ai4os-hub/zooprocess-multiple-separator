@@ -88,12 +88,12 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
 
     # get binary image separating the background (0) from grey regions (1)
     gray_img = np.array(image.convert('L'))
-    binary_image = (gray_img < 255).astype(float)
+    binary_img = (gray_img < 255).astype(float)
     # NB: using < 255 assumes the background is perfectly white
     # plt.clf(); plt.imshow(gray_img, cmap='Greys_r', interpolation='none'); plt.show()
 
     # detect missing regions = grey regions outside of masks detected by the panoptic segmenter
-    missing_regions = np.logical_and(panoptic_masks == 0, binary_image != 0)
+    missing_regions = np.logical_and(panoptic_masks == 0, binary_img != 0)
     # plt.clf(); plt.imshow(missing_regions); plt.show()
     missing_regions = label(missing_regions, background=0, return_num=False, connectivity=2)
     # plt.clf(); plt.imshow(missing_regions); plt.show()
@@ -111,10 +111,10 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
             selected_masks_ids.append(max_mask_id)
     # plt.clf(); plt.imshow(panoptic_masks); plt.show()
 
-    return panoptic_masks, avg_score, gray_img
+    return panoptic_masks, avg_score, gray_img, binary_img
 
 
-def separate_with_watershed(panoptic_masks, mask_from_distance=True):
+def separate_with_watershed(panoptic_masks, overall_mask=None):
     """
     Apply the watershed algorithm on the predicted mask map, using the mask
     centers as markers, to generate lines separating the different objects.
@@ -123,10 +123,10 @@ def separate_with_watershed(panoptic_masks, mask_from_distance=True):
         panoptic_masks (np.ndarray): array of masks labels output by
           `predict_panoptic_masks()`. 0 is the background, the other values are
           masks.
-        mask_from_distance (bool): when True, compute the watershed mask (region
-          inside which the watershed should be computed) from the distance map
-          computed from `panoptic_masks`; when False, use any non-zero pixel of
-          `panoptic_masks`.
+        overall_mask (np.ndarray): mask of the original image, over which to 
+          compute the watershed. 0 is the background, 1 is the objects. If None,
+          will be computed from the distance map computed by the watershed. This
+          is also output by `predict_panoptic_masks()`.
       
     Returns:
         (np.ndarray) with 0 as background and 1 for lines separating two objects.
@@ -149,26 +149,28 @@ def separate_with_watershed(panoptic_masks, mask_from_distance=True):
         center_x.append(center_coords[0])
         center_y.append(center_coords[1])
     # plt.clf(); plt.imshow(dist_map); plt.show()
-    # mask_centers
+    # center_x
+    # center_y
 
     # Prepare watershed markers
     watershed_markers = np.zeros(dist_map.shape, dtype=bool)
     watershed_markers[(center_x, center_y)] = True
     watershed_markers, _ = ndi.label(watershed_markers)
-    # plt.clf(); plt.imshow(markers); plt.show()
+    # plt.clf(); plt.imshow(watershed_markers); plt.show()
 
     # Prepare watershed mask
-    if mask_from_distance:
+    if overall_mask is None:
         watershed_mask = np.zeros(dist_map.shape, dtype='int64')
         watershed_mask[dist_map > .01] = 1
     else:
-        watershed_mask = (panoptic_masks != 0)
+        watershed_mask = overall_mask
     # plt.clf(); plt.imshow(watershed_mask); plt.show()
 
     # Apply watershed
     labels = watershed(
         -dist_map, watershed_markers, mask=watershed_mask, watershed_line=False
     )
+    # plt.clf(); plt.imshow(labels); plt.show()
 
     # Derive separation lines
     lines = np.zeros(labels.shape)
@@ -182,5 +184,6 @@ def separate_with_watershed(panoptic_masks, mask_from_distance=True):
         )
         boundaries[(labels == 0) | (labels == value)] = 0
         lines[boundaries == 1] = 1
-
+    # plt.clf(); plt.imshow(lines); plt.show()
+    
     return lines

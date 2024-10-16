@@ -13,13 +13,14 @@ model, processor, device = api.warm()
 # Test underlying functions
 from zooprocess_multiple_separator import utils
 reload(utils)
-masks, score, image = \
+masks, score, image, binary_image = \
     utils.predict_panoptic_masks(image_path=test_img,
     model=model, processor=processor, device=device, min_mask_score=0.9, bottom_crop=0)
 print(score)
 plt.clf(); plt.imshow(image, cmap='Greys_r', interpolation='none'); plt.show()
+plt.clf(); plt.imshow(binary_image, cmap='Greys_r', interpolation='none'); plt.show()
 plt.clf(); plt.imshow(masks); plt.show()
-sep_lines = utils.separate_with_watershed(masks)
+sep_lines = utils.separate_with_watershed(masks, binary_image)
 plt.clf(); plt.imshow(sep_lines); plt.show()
 
 # encode sep lines
