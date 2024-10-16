@@ -102,6 +102,7 @@ def warm():
     
     return model, processor, device
 
+
 def get_predict_args():
     """
     Get the list of arguments for the predict function
@@ -134,6 +135,7 @@ def get_predict_args():
 
     return arg_dict
 
+
 @_catch_error
 def predict(**kwargs):
     """
@@ -141,7 +143,7 @@ def predict(**kwargs):
     """
 
     # get predicted masks
-    masks, img, binary_img, masks_distance_map, masks_centers, score = utils.predict_mask_panoptic(
+    masks, score, image = utils.predict_panoptic_masks(
         kwargs['image'].filename,
         model, processor, device,
         kwargs['min_mask_score'], kwargs['bottom_crop']
@@ -149,28 +151,31 @@ def predict(**kwargs):
 
     # apply watershed algorithm
     # = from each center find connected regions and their separation
-    sep_lines = utils.get_watershed_result(masks_distance_map, masks_centers, mask=binary_img)
+    sep_lines = utils.separate_with_watershed(masks)
     # NB: this has 0 as the background and 1 where the separation lines should be drawn
 
     # # produce a diagnostic plot
-    # # TODO to review, not ure this still works
     # fig, axes = plt.subplots(nrows=2, ncols=2,
     #                          subplot_kw={'xticks': [], 'yticks': []})
     # 
-    # axes[1,0].imshow(img, interpolation='none')
-    # axes[1,0].set_title("Original image")
+    # axes[0,0].imshow(image, cmap='Greys_r', interpolation='none')
+    # axes[0,0].set_title("Original image (cropped)")
     # 
-    # axes[0,0].imshow(mask_sum, cmap="viridis")
-    # axes[0,0].set_title("Sum of predicted masks")
+    # axes[0,1].imshow(masks, interpolation='none')
+    # axes[0,1].set_title("Predicted masks")
     # 
-    # axes[0,1].imshow(watershed_labels, interpolation='none')
-    # axes[0,1].set_title("Watershed result")
+    # axes[1,1].imshow(sep_lines, interpolation='none')
+    # axes[1,1].set_title("Watershed result")
     # 
-    # axes[1,1].imshow(separation_mask, cmap='Greys_r', interpolation='none')
-    # axes[1,1].set_title("Extracted line(s)")
+    # axes[1,0].imshow(image, cmap='Greys_r', interpolation='none')
+    # from matplotlib.colors import ListedColormap
+    # my_cmap = ListedColormap(colors='red')
+    # my_cmap.set_under('k', alpha=0)
+    # axes[1,0].imshow(sep_lines, cmap=my_cmap, interpolation='none', clim=[0.1,10])
+    # axes[1,0].set_title("Final separation")
     # 
     # plt.show()
-    
+
     # encode the lines to draw as a sparse image
     sep_coords = np.where(sep_lines==1)
     sep_coords = [sep.tolist() for sep in sep_coords]
