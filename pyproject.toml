@@ -23,8 +23,8 @@ classifiers = [
 dynamic = ["version", "dependencies"]
 
 [project.urls]
-"Homepage" = "https://github.com/ai4os-hub/zooprocess-multiple-separator/zooprocess-multiple-separator"
-"Bug Tracker" = "https://github.com/ai4os-hub/zooprocess-multiple-separator/zooprocess-multiple-separator/issues"
+"Homepage" = "https://github.com/ai4os-hub/zooprocess-multiple-separator/"
+"Bug Tracker" = "https://github.com/ai4os-hub/zooprocess-multiple-separator/issues"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
