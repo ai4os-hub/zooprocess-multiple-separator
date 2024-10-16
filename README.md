@@ -11,6 +11,15 @@ pip install -e .
 deepaas-run --listen-ip 0.0.0.0
 ```
 
+## Docker images
+
+Once a version is pushed to the main branch, it should be built automatically through [AI4OS Jenkins service](https://jenkins.services.ai4os.eu/job/AI4OS-hub/job/zooprocess-multiple-separator/) and become available from [dockerhub](https://hub.docker.com/r/ai4oshub/zooprocess-multiple-separator/tags).
+
+Getting the image works through
+```bash
+docker pull ai4oshub/zooprocess-multiple-separator:latest
+```
+
 ## Project structure
 ```
 │
