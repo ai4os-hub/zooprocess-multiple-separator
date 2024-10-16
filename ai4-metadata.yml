@@ -6,8 +6,8 @@ description: |-
   This module processes images produced by ZooProcess that may contain multiple objects and separates the objects by drawing lines between them. This allows the rest of the processing to work on individual objects, which is necessary for their classification and measurements.
 # doi: http://add-some-DOI-url.com
 dates:
-  created: 2024-09-20
-  updated: 2024-09-25
+  created: '2024-09-20'
+  updated: '2024-10-16'
 links:
   ai4_template: ai4-template/2.1.5
   source_code: https://github.com/ai4os-hub/zooprocess-multiple-separator
