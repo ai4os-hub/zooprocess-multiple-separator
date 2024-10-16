@@ -99,8 +99,6 @@ def warm():
     processor = MaskFormerImageProcessor.from_pretrained(model_path)
     model = Mask2FormerForUniversalSegmentation.from_pretrained(model_path)
     model = model.to(device)
-    
-    return model, processor, device
 
 
 def get_predict_args():
