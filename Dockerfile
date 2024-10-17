@@ -16,7 +16,7 @@ ARG tag=2.4.0-cuda12.1-cudnn9-runtime
 FROM pytorch/pytorch:${tag}
 
 LABEL maintainer='Jean-Olivier Irisson,Marine Colin,Emma Amblard,Victor Reutenauer'
-LABEL version='0.0.1'
+LABEL version='1.1.0'
 # This module processes images produced by ZooProcess that may contain multiple objects and separates the objects by drawing lines between them. This allows the rest of the processing to work on individual objects, which is necessary for their classification and measurements.
 
 # What user branch to clone [!]
