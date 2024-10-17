@@ -79,6 +79,9 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
     scores = [seg["score"] for seg in results["segments_info"]\
       if seg["id"] in selected_masks_ids]
     avg_score = np.mean(scores)
+    # the scores are necessarily betweem min_mask_score and 1
+    # rescale the average score between 0 and 1
+    avg_score = (avg_score - min_mask_score) * 1 / (1-min_mask_score)
 
     # assign everything else as background (=0)
     panoptic_masks[~ np.isin(panoptic_masks, selected_masks_ids)] = 0
