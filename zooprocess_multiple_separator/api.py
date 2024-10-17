@@ -138,7 +138,25 @@ def get_predict_args():
 def predict(**kwargs):
     """
     Compute the white lines to separate objects
+    
+    Args:
+        See get_predict_args() above.
+    
+    Returns:
+        A dict with
+        separation_coordinates (list with 2 components): the x and y coordinates of pixels
+          that draw separation lines on the original image, to separate multiple organisms.
+          This list can be used to subset 2D arrays.
+        image_shape (tuple of ints): the height and width of the original image
+        score (float): an estimate of the confidence of the network for the quality of
+          separation; this is very appropximate (and only in [min_mask_score,1])
+    
+        To create a black image with white separation lines, one can write
+          import numpy as np
+          X = np.zeros(image_shape)
+          X[separation_coordinates] = 1
     """
+    # TODO rescale the score between 0 and 1, based on min_mask_score.
 
     # get predicted masks
     masks, score, image, binary_image = utils.predict_panoptic_masks(
