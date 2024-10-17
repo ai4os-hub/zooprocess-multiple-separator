@@ -7,7 +7,8 @@
     ],
     "keywords": [
         "docker",
-        "api-v2"
+        "api-v2",
+	"vo.imagine-ai.eu"
     ],
     "license": "AGPL-3.0-only",
     "date_creation": "2024-09-20",
