@@ -1,7 +1,9 @@
-# zooprocess multiple separator
+# zooprocess-multiple-separator
 [![Build Status](https://jenkins.services.ai4os.eu/buildStatus/icon?job=AI4OS-hub/zooprocess-multiple-separator/main)](https://jenkins.services.ai4os.eu/job/AI4OS-hub/job/zooprocess-multiple-separator/job/main/)
 
 This module processes images produced by ZooProcess that may contain multiple objects and separates the objects by drawing lines between them. This allows the rest of the processing to work on individual objects, which is necessary for their classification and measurements.
+
+ The segmentation is based on Mask2Former, in panoptic mode, but the resulting detections are further processed to match the original objects to the pixel and draw the separation lines.
 
 To launch it, first install the package then run [deepaas](https://github.com/ai4os/DEEPaaS):
 ```bash
@@ -19,6 +21,8 @@ Getting the image works through
 ```bash
 docker pull ai4oshub/zooprocess-multiple-separator:latest
 ```
+
+<img src="illustration_separator.png" style="width: 100%;" alt="illustration" />
 
 ## Project structure
 ```

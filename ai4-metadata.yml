@@ -1,9 +1,13 @@
 metadata_version: 2.0.0
-title: zooprocess multiple separator
+title: ZooProcess Multiple Separator
 summary: A module to draw lines between objects to be separated from one another in ZooScan images
 description: |-
-  zooprocess_multiple_separator is an application using the DEEPaaS API.
   This module processes images produced by ZooProcess that may contain multiple objects and separates the objects by drawing lines between them. This allows the rest of the processing to work on individual objects, which is necessary for their classification and measurements.
+
+  The segmentation is based on Mask2Former, in panoptic mode, but the resulting detections are further processed to match the original objects to the pixel and draw the separation lines.
+
+  <img class='fit', src='https://raw.githubusercontent.com/ai4os-hub/zooprocess-multiple-separator/main/illustration_separator.png' alt='illustration' />
+  
 # doi: http://add-some-DOI-url.com
 dates:
   created: '2024-09-20'
