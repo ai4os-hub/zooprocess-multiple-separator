@@ -6,7 +6,7 @@ description: |-
 
   The segmentation is based on Mask2Former, in panoptic mode, but the resulting detections are further processed to match the original objects to the pixel and draw the separation lines.
 
-  <img class='fit', src='https://raw.githubusercontent.com/ai4os-hub/zooprocess-multiple-separator/main/illustration_separator.png' alt='illustration' />
+  <img class='fit', src='https://raw.githubusercontent.com/ai4os-hub/zooprocess-multiple-separator/main/illustration_separator.png'/>
   
 # doi: http://add-some-DOI-url.com
 dates:
