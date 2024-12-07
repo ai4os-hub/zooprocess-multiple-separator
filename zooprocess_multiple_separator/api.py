@@ -135,13 +135,13 @@ def get_predict_args():
 
 
 schema = {
-    "separation_coordinates": fields.List(
-        fields.List(fields.Int()),
+    "separation_coordinates": fields.Tuple(
+        (fields.List(fields.Int()), fields.List(fields.Int())),
         required=True,
         metadata={'description': """a list containing two other lists of ints: the x and y coordinates of pixels that draw lines on the original image, to separate multiple organisms. This list can be used to subset 2D arrays. For example, to create a black image with white separation lines, one can write:
       import numpy as np
       X = np.zeros(image_shape)
-      X[separation_coordinates] = 1
+      X[tuple(separation_coordinates)] = 1
       """}
     ),
     "image_shape": fields.Tuple(
@@ -204,7 +204,7 @@ def predict(**kwargs):
 
     # encode the lines to draw as a sparse image
     sep_coords = np.where(sep_lines==1)
-    sep_coords = [sep.tolist() for sep in sep_coords]
+    sep_coords = tuple([sep.tolist() for sep in sep_coords])
     shape = sep_lines.shape
 
     return {
