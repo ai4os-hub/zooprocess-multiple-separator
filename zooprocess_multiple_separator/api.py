@@ -19,7 +19,6 @@ import os
 import torch
 import torchvision
 import numpy as np
-from PIL import Image
 
 from zooprocess_multiple_separator import config
 from zooprocess_multiple_separator.misc import _catch_error

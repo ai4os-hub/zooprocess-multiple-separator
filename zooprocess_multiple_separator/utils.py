@@ -9,7 +9,6 @@ Functions used in api.py
 import os
 import numpy as np
 from scipy import ndimage as ndi
-from PIL import Image
 
 import torch
 import torchvision
@@ -43,15 +42,14 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
         avg_score (float): average of the scores of the retained masks.
         image (Image): input image, possibly after crop.
     """
-    image = Image.open(image_path)
+    image = torchvision.io.read_image(image_path)
     # plt.clf(); plt.imshow(image); plt.show()
 
     # (possibly) crop the bottom of the image
-    w, h = image.size
+    d, h, w = image.size()
     image = trf.crop(image, 0, 0, h-bottom_crop, w)
 
     # create and preprocess the tensor
-    img_tens = trf.to_image(image.convert("RGB"))
     ADE_MEAN = np.array([123.675, 116.280, 103.530]) / 255
     ADE_STD = np.array([58.395, 57.120, 57.375]) / 255
     preprocess = tr.Compose([
@@ -59,14 +57,14 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
         tr.ToDtype(torch.float32, scale=True),
         tr.Normalize(ADE_MEAN, ADE_STD)
     ])
-    img_tens = preprocess(img_tens)
+    img_tens = preprocess(image)
     img_tens = img_tens.to(device)      # copy to GPU/CPU
     img_tens = img_tens[None, :, :, :]  # add empty dimension as for a batch
     
     # predict panoptic masks
     with torch.no_grad():
         outputs = model(img_tens)
-    results = processor.post_process_panoptic_segmentation(outputs, target_sizes=[image.size[::-1]])[0]
+    results = processor.post_process_panoptic_segmentation(outputs, target_sizes=[(h-bottom_crop,w)])[0]
     panoptic_masks = results["segmentation"].cpu().numpy()
     # plt.clf(); plt.imshow(panoptic_masks); plt.show()
 
@@ -91,7 +89,7 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
     # and consider them as new masks, to improve the final segmentation
 
     # get binary image separating the background (0) from grey regions (1)
-    gray_img = np.array(image.convert('L'))
+    gray_img = image.numpy()[0,:,:]
     binary_img = (gray_img < 255).astype(float)
     # NB: using < 255 assumes the background is perfectly white
     # plt.clf(); plt.imshow(gray_img, cmap='Greys_r', interpolation='none'); plt.show()
