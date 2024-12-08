@@ -83,7 +83,7 @@ def warm():
 
     # check that the model file is there, in zipped form
     if not os.path.exists(model_zip_path):
-        logger.error("Zipfile of model not found.")
+        logger.error("Zip file of model not found.")
         return None
     
     # if the directory containing the model does not exist,
