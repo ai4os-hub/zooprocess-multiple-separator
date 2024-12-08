@@ -43,7 +43,7 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
         image (Image): input image, possibly after crop.
     """
     image = torchvision.io.read_image(image_path)
-    # plt.clf(); plt.imshow(image); plt.show()
+    # plt.clf(); plt.imshow(image.permute(1, 2, 0)); plt.show()
 
     # (possibly) crop the bottom of the image
     d, h, w = image.size()
