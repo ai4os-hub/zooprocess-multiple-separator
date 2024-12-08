@@ -1,19 +1,28 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from importlib import reload
+import os
 
 ## Load model ----
 
 from zooprocess_multiple_separator import api
 reload(api)
 api.warm()
+# the variables are loaded inside the api modules. get some equivalent here.
 model=api.model
 processor=api.processor
 device=api.device
 
 
 ## Test underlying functions ----
-test_img = "../test_images/m_1245.jpg"
+from zooprocess_multiple_separator import utils
+reload(utils)
+
+image_paths = ["../test_images/m_1245.jpg", "../test_images/s_0201.jpg"]
+image_names = [os.path.basename(img) for img in image_paths]
+
+outputs = utils.predict_panoptic_masks(image_paths, image_names, model, processor, device, bottom_crop)
+outputs
 
 from zooprocess_multiple_separator import utils
 reload(utils)
