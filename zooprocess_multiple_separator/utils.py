@@ -69,7 +69,7 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
     # plt.clf(); plt.imshow(panoptic_masks); plt.show()
 
     # keep only those with a high enough score
-    selected_masks_ids = [seg["id"]  for seg in results["segments_info"]\
+    selected_masks_ids = [seg["id"] for seg in results["segments_info"]\
       if seg["label_id"] == 1 and seg["score"]>min_mask_score]
       # NB: label_id == 1 for objects, 0 for background
     
