@@ -37,9 +37,7 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 # initialise global variables
 model = None
 processor = None
-# check if a GPU is available, fallback to CPU
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+device = None
 
 @_catch_error
 def get_metadata():
@@ -76,6 +74,9 @@ def warm():
 
     # make sure the objects are available everywhere after the application starts
     global model, processor, device
+
+    # check if a GPU is available, fallback to CPU
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # NB: get the model file from a github release
     model_zip_path = os.path.join(BASE_DIR,
