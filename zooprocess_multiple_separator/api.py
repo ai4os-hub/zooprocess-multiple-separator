@@ -13,6 +13,7 @@ an exemplar module [2].
 from pathlib import Path
 import logging
 from webargs import fields
+from marshmallow import Schema
 
 import os
 import torch
@@ -106,7 +107,7 @@ def get_predict_args():
     Get the list of arguments for the predict function
     """
     arg_dict = {
-        "image": fields.Field(
+        "images": fields.Field(
             metadata={
                 'type': "file",
                 'location': "form",
@@ -136,27 +137,32 @@ def get_predict_args():
     return arg_dict
 
 
-schema = {
-    "separation_coordinates": fields.Tuple(
-        (fields.List(fields.Int()), fields.List(fields.Int())),
-        required=True,
-        metadata={'description': """a list containing two other lists of ints: the x and y coordinates of pixels that draw lines on the original image, to separate multiple organisms. This list can be used to subset 2D arrays. For example, to create a black image with white separation lines, one can write:
-      import numpy as np
-      X = np.zeros(image_shape)
-      X[tuple(separation_coordinates)] = 1
-      """}
-    ),
-    "image_shape": fields.Tuple(
-        (fields.Int(),fields.Int()),
-        required=True,
-        metadata={'description': "the height and width of the original image."}
-    ),
-    "score": fields.Float(
-        required=True,
-        metadata={'description': "an estimate of the confidence of the network for the quality of separation; this is very appropximate (and in [0,1])."}
-    )
-}
-
+# class OutputSchema(Schema):
+#     name = fields.Str()
+#     separation_coordinates = fields.Tuple(
+#         (fields.List(fields.Int()),fields.List(fields.Int())),
+#         required=True,
+#         metadata={'description': """a list containing two other lists of ints:\
+#         the x and y coordinates of pixels that draw lines on the original image,\
+#         to separate multiple organisms. This list can be used to subset 2D arrays.\
+#         For example, to create a black image with white separation lines, one can write:
+#       import numpy as np
+#       X = np.zeros(image_shape)
+#       X[separation_coordinates] = 1
+#       """}
+#     )
+#     image_shape = fields.Tuple(
+#         (fields.Int(),fields.Int()),
+#         required=True,
+#         metadata={'description': "the height and width of the original image."}
+#     )
+#     score = fields.Float(
+#         required=True,
+#         metadata={'description': "an estimate of the confidence of the network\
+#         for the quality of separation; this is very appropximate (and in [0,1])."}
+#     )
+# 
+# schema = fields.List(fields.Nested(OutputSchema))
 
 @_catch_error
 def predict(**kwargs):
@@ -169,51 +175,77 @@ def predict(**kwargs):
     Returns:
         See schema, above.
     """
+    
+    import tempfile
+    data = kwargs['images']
 
-    # get predicted masks
-    masks, score, image, binary_image = utils.predict_panoptic_masks(
-        kwargs['image'].filename,
-        model, processor, device,
-        kwargs['min_mask_score'], kwargs['bottom_crop']
-        )
+    # get input files
+    # either as a zip
+    if data.content_type == 'application/zip':
+        # extract
+        tmp_input = tempfile.mkdtemp()
+        with zipfile.ZipFile(data.filename, 'r') as zip_file:
+            zip_file.extractall(tmp_input)
+        # keep only images
+        filenames = sorted(os.listdir(tmp_input))
+        filenames = [file for file in filenames if file.endswith(('jpg', 'png', 'jpeg'))]
+        filepaths = [os.path.join(tmp_input, name) for name in filenames]
+    # or as a single item
+    else:
+        filepaths = [data.filename]
+        filenames = [data.original_filename]
 
-    # apply watershed algorithm
-    # = from each center find connected regions and their separation
-    sep_lines = utils.separate_with_watershed(masks, binary_image)
-    # NB: this has 0 as the background and 1 where the separation lines should be drawn
+    results = []
+    for i in range(len(filepaths)):
 
-    # # produce a diagnostic plot
-    # fig, axes = plt.subplots(nrows=2, ncols=2,
-    #                          subplot_kw={'xticks': [], 'yticks': []})
-    # 
-    # axes[0,0].imshow(image, cmap='Greys_r', interpolation='none')
-    # axes[0,0].set_title("Original image (cropped)")
-    # 
-    # axes[0,1].imshow(masks, interpolation='none')
-    # axes[0,1].set_title("Predicted masks")
-    # 
-    # axes[1,1].imshow(sep_lines, interpolation='none')
-    # axes[1,1].set_title("Watershed result")
-    # 
-    # axes[1,0].imshow(image, cmap='Greys_r', interpolation='none')
-    # from matplotlib.colors import ListedColormap
-    # my_cmap = ListedColormap(colors='red')
-    # my_cmap.set_under('k', alpha=0)
-    # axes[1,0].imshow(sep_lines, cmap=my_cmap, interpolation='none', clim=[0.1,10])
-    # axes[1,0].set_title("Final separation")
-    # 
-    # plt.show()
+        # get predicted masks
+        masks, score, image, binary_image = utils.predict_panoptic_masks(
+            filepaths[i],
+            model, processor, device,
+            kwargs['min_mask_score'], kwargs['bottom_crop']
+            )
+    
+        # apply watershed algorithm
+        # = from each center find connected regions and their separation
+        sep_lines = utils.separate_with_watershed(masks, binary_image)
+        # NB: this has 0 as the background and 1 where the separation lines should be drawn
+    
+        # # produce a diagnostic plot
+        # fig, axes = plt.subplots(nrows=2, ncols=2,
+        #                          subplot_kw={'xticks': [], 'yticks': []})
+        # 
+        # axes[0,0].imshow(image, cmap='Greys_r', interpolation='none')
+        # axes[0,0].set_title("Original image (cropped)")
+        # 
+        # axes[0,1].imshow(masks, interpolation='none')
+        # axes[0,1].set_title("Predicted masks")
+        # 
+        # axes[1,1].imshow(sep_lines, interpolation='none')
+        # axes[1,1].set_title("Watershed result")
+        # 
+        # axes[1,0].imshow(image, cmap='Greys_r', interpolation='none')
+        # from matplotlib.colors import ListedColormap
+        # my_cmap = ListedColormap(colors='red')
+        # my_cmap.set_under('k', alpha=0)
+        # axes[1,0].imshow(sep_lines, cmap=my_cmap, interpolation='none', clim=[0.1,10])
+        # axes[1,0].set_title("Final separation")
+        # 
+        # plt.show()
+    
+        # encode the lines to draw as a sparse image
+        sep_coords = np.where(sep_lines==1)
+        sep_coords = tuple([sep.tolist() for sep in sep_coords])
+        shape = sep_lines.shape
+        
+        results.append({
+            "name": filenames[i],
+            "separation_coordinates": sep_coords,
+            "image_shape": shape,
+            "score": score
+        })
 
-    # encode the lines to draw as a sparse image
-    sep_coords = np.where(sep_lines==1)
-    sep_coords = tuple([sep.tolist() for sep in sep_coords])
-    shape = sep_lines.shape
+    return results
 
-    return {
-      "separation_coordinates": sep_coords,
-      "image_shape": shape,
-      "score": score
-    }
 
 # uncomment to make deepaas-cli working
 def get_train_args():
