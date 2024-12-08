@@ -1,16 +1,20 @@
-# DEVELOP
 import matplotlib.pyplot as plt
 import numpy as np
 from importlib import reload
 
-test_img = "m_0595.jpg"
-test_img = "0be42a52fc61857c6a83eec1fffe485f_38088162.png"
+## Load model ----
 
 from zooprocess_multiple_separator import api
 reload(api)
-model, processor, device = api.warm()
+api.warm()
+model=api.model
+processor=api.processor
+device=api.device
 
-# Test underlying functions
+
+## Test underlying functions ----
+test_img = "../test_images/m_1245.jpg"
+
 from zooprocess_multiple_separator import utils
 reload(utils)
 masks, score, image, binary_image = \
@@ -25,23 +29,29 @@ plt.clf(); plt.imshow(sep_lines); plt.show()
 
 # encode sep lines
 sep_coords = np.where(sep_lines==1)
-sep_coords = [sep.tolist() for sep in sep_coords]
+sep_coords = tuple([sep.tolist() for sep in sep_coords])
 shape = sep_lines.shape
 
-# reconstruct image
+# reconstruct the separation image
 X = np.zeros(shape)
 X[sep_coords] = 1
 plt.clf(); plt.imshow(X); plt.show()
 
-# Test API
-class Img():
+
+## Test API ----
+
+# mimick the input object
+class Input():
   def __init__(self, filename=None):
     self.filename=None
-image=Img()
-image.filename=test_img
+    self.original_filename=None
+    self.content_type=None
+input_data = Input()
+input_data.filename = "../test_images/Archive.zip"
+input_data.content_type = 'application/zip'
 
-res = api.predict(image=image, min_mask_score=0.9, bottom_crop=0)
-X = np.zeros(res['image_shape'])
-X[tuple(res['separation_coordinates'])] = 1
-plt.clf(); plt.imshow(X); plt.show()
-res['score']
+res = api.predict(images=input_data, min_mask_score=0.9, bottom_crop=0)
+# X = np.zeros(res['image_shape'])
+# X[tuple(res['separation_coordinates'])] = 1
+# plt.clf(); plt.imshow(X); plt.show()
+# res['score']
