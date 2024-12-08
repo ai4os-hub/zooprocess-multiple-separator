@@ -110,13 +110,15 @@ def get_predict_args():
             metadata={
                 'type': "file",
                 'location': "form",
-                'description': "An image containing object(s) to separate."
+                'description': "A zip file containing the images to classify (all\
+                images should be at the root of the zip file) or a single image file."
             },
             required=True
         ),
        "min_mask_score": fields.Float(
             metadata={
-                'description': "The minimum confidence score for a mask to be selected. [Default: 0.9]"
+                'description': "The minimum confidence score for a mask to be\
+                selected. [Default: 0.9]"
             },
             required=False,
             load_default=0.9
