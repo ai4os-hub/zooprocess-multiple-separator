@@ -2,6 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from importlib import reload
 
+def imshow(x):
+  from matplotlib import pyplot as plt
+  plt.imshow(x.permute(1, 2, 0))
+  plt.show()
+
+
 ## Load model ----
 
 from zooprocess_multiple_separator import api
@@ -14,12 +20,13 @@ device=api.device
 
 ## Test underlying functions ----
 image_path = "../test_images/m_1245.jpg"
+image_path = "/home/jiho/datasets/juday/images/612787652.jpg"
 
 from zooprocess_multiple_separator import utils
 reload(utils)
 masks, score, image, binary_image = \
     utils.predict_panoptic_masks(image_path=image_path,
-    model=model, processor=processor, device=device, min_mask_score=0.9, bottom_crop=0)
+    model=model, processor=processor, device=device, min_mask_score=0.9, bottom_crop=31)
 print(score)
 plt.clf(); plt.imshow(image, cmap='Greys_r', interpolation='none'); plt.show()
 plt.clf(); plt.imshow(binary_image, cmap='Greys_r', interpolation='none'); plt.show()
