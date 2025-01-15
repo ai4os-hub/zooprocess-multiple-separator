@@ -12,7 +12,7 @@ This module was developed as part of the [iMagine](https://www.imagine-ai.eu) pr
 
 To launch it, first install the package then run [deepaas](https://github.com/ai4os/DEEPaaS):
 ```bash
-git clone https://github.com/ai4os-hub/zooprocess-multiple-separator/zooprocess-multiple-separator
+git clone https://github.com/ai4os-hub/zooprocess-multiple-separator
 cd zooprocess-multiple-separator
 pip install -e .
 deepaas-run --listen-ip 0.0.0.0 --model-name zooprocess_multiple_separator
