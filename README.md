@@ -10,16 +10,31 @@ This module was developed as part of the [iMagine](https://www.imagine-ai.eu) pr
 
 ## Run the module's API
 
-To launch it, first install the package then run [deepaas](https://github.com/ai4os/DEEPaaS):
+First download and install the package and its dependencies. It is good practice to perform this installation in a virtual environment (see the documentation for [Python native venvs](https://docs.python.org/3/library/venv.html) or [Conda environments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#)). Then
+
 ```bash
 git clone https://github.com/ai4os-hub/zooprocess-multiple-separator
 cd zooprocess-multiple-separator
 pip install -e .
-deepaas-run --listen-ip 0.0.0.0 --model-name zooprocess_multiple_separator
 ```
 
-Then browse to <http://localhost:5000> and you should get a simple message as a response, verifying that everything works as intended.
-Finally, browse to <http://localhost:5000/api> to get access to the graphical interface and documentation of the deepaas API for this model.
+Fetch the model weights from the first GitHub release and move them in the appropriate location
+
+```bash
+wget https://github.com/ai4os-hub/zooprocess-multiple-separator/releases/download/v1.0.0/learn_plankton_pano_plus5000_8epoch.zip
+mv learn_plankton_pano_plus5000_8epoch.zip models/
+```
+
+Run [DEEPaaS](https://github.com/ai4os/DEEPaaS):
+
+```bash
+deepaas-run --listen-port 5001 --model-name zooprocess_multiple_separator
+```
+
+NB: the port is set to 5001 rather than the default 5000 so that it does not conflict with the module [zooprocess-multiple-classifier](https://github.com/ai4os-hub/zooprocess-multiple-classifier) that you would probably also be using.
+
+Then browse to <http://localhost:5001> and you should get a simple message as a response, verifying that everything works as intended.
+Finally, browse to <http://localhost:5001/api> to get access to the graphical interface and documentation of the DEEPaaS API for this model.
 
 
 ## Docker images
@@ -31,7 +46,7 @@ Getting the image works through
 docker pull ai4oshub/zooprocess-multiple-separator:latest
 ```
 
-When running the docker image, map port 5000 from inside the docker to a port on the machine running docker (e.g. 55000). Then replace `http://localhost:5000` above by the ip/name of the machine and the port you mapped 5000 to (55000 in the example above).
+When running the docker image, map port 5001 from inside the docker to a port on the machine running docker (e.g. 55001). Then replace `http://localhost:5001` above by the ip/name of the machine and the port you mapped 5001 to (55001 in the example above). As above, this uses port 55001 to avoid conflicts if you already run the docker for [zooprocess-multiple-classifier](https://github.com/ai4os-hub/zooprocess-multiple-classifier) on port 55000.
 
 <img src="illustration_separator.png" style="width: 100%;" alt="illustration" />
 
