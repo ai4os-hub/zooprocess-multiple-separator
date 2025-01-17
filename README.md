@@ -5,7 +5,7 @@ This AI module processes images produced by [ZooProcess](https://sites.google.co
 
 The segmentation is based on Mask2Former, in panoptic mode, but the resulting detections are further processed to match the original objects to the pixel and draw the separation lines.
 
-This module was developed as part of the [iMagine](https://www.imagine-ai.eu) project and in partnership with the [FOTONOWER](http://fotonower.com/) company.
+This module was developed as part of the [iMagine](https://www.imagine-ai.eu) project, by the [Laboratoire d'Océanographie de Villefranche (LOV)](http://lov.imev-mer.fr/) in partnership with the company [FOTONOWER](http://fotonower.com/).
 
 
 ## Run the module's API
