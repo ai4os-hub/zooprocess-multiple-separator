@@ -10,7 +10,15 @@ This module was developed as part of the [iMagine](https://www.imagine-ai.eu) pr
 
 ## Run the module's API
 
-First download and install the package and its dependencies. It is good practice to perform this installation in a virtual environment (see the documentation for [Python native venvs](https://docs.python.org/3/library/venv.html) or [Conda environments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#)). Then
+First download and install the package and its dependencies. It is good practice to perform this installation in a virtual environment (see the documentation for [Python native venvs](https://docs.python.org/3/library/venv.html) or [Conda environments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#)). The depencies are tested with Python 3.11 and are installed with `pip` so, to create a compatible environment with conda, one would write:
+
+```bash
+conda env create --name=zooprocess_multiple python=3.11
+# this installs pip too
+conda activate zooprocess_multiple
+```
+
+Then
 
 ```bash
 git clone https://github.com/ai4os-hub/zooprocess-multiple-separator
