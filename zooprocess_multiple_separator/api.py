@@ -249,8 +249,44 @@ def predict(**kwargs):
 
 # uncomment to make deepaas-cli working
 def get_train_args():
-    return {}
+    arg_dict = {
+        "n_epochs": fields.Int(
+            metadata={
+                'description': "Number of training epochs. [Default: 10]"
+            },
+            required=False,
+            missing=10
+        ),
+        "batch_size": fields.Int(
+            metadata={
+                'description': "Number of images in each training batch. Should\
+                probably be as large as the GPU allows. [Default: 128]"
+            },
+            required=False,
+            load_default=16,
+        ),
+        "list_hashtags": fields.List(
+            fields.Str(),
+            metadata={
+                'description': "List of hashtags to train on. [Default: ['plancton']]"
+            },
+            required=False,
+            load_default=["plancton"]
+        ),
 
-#
-# def train(**kwargs):
-#     return None
+
+    }
+    
+    return arg_dict
+
+
+def train(**kwargs):
+    run_train(
+      data_dir=os.path.join(BASE_DIR, 'data'),
+      out_dir=os.path.join(BASE_DIR, 'models'),
+      device=device,
+      bottom_crop=kwargs['bottom_crop'],
+      n_epochs=kwargs['n_epochs'],
+      batch_size=kwargs['batch_size'],
+      n_cores=kwargs['n_cores']
+    )
