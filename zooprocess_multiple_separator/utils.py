@@ -19,7 +19,7 @@ from skimage.measure import label
 from skimage.segmentation import watershed, find_boundaries
 
 
-def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=0.9, bottom_crop=31):
+def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=0.9, bottom_crop=31, max_prop_missing=0.2):
     """
     Perform the mask segmention for a given image with a panoptic model
     
@@ -36,6 +36,12 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
         min_mask_score (float): minimum probability to retain a potential mask.
         bottom_crop (int): number of pixels to crop from the bottom of the image
           (e.g. to remove the scale bar for example)
+        max_prop_missing (float, in [0,1]): proportion of the area of the
+          original object. When the panoptic model's masks do not cover a region
+          of the object that is larger than this proportion, consider it as a
+          potential new object for the watershed etc. procedure. This allows to
+          catch back objects of interest that may have been missing by the
+          panoptic segmenter.
     
     Returns:
         panoptic_masks (np.ndarray): the labels of the retained masks.
@@ -97,6 +103,7 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
     gray_img = image.numpy()[0,:,:]
     binary_img = (gray_img < 255).astype(float)
     # NB: using < 255 assumes the background is perfectly white
+    total_pixels = np.sum(binary_img)
     # plt.clf(); plt.imshow(gray_img, cmap='Greys_r', interpolation='none'); plt.show()
 
     # detect missing regions = grey regions outside of masks detected by the panoptic segmenter
@@ -111,8 +118,7 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
     for i in np.delete(missing_regions_ids, 0):
         # NB: do not consider region 0 which is the background
         # if large enough, add it to the masks
-        if nb_pixels[i]>800:
-            # TODO make the threshold number of pixels (800 here) configurable
+        if nb_pixels[i] > (total_pixels * max_prop_missing):
             max_mask_id = max_mask_id+1  # increase the mask id counter
             panoptic_masks[missing_regions == missing_regions_ids[i]] = max_mask_id
             selected_masks_ids.append(max_mask_id)

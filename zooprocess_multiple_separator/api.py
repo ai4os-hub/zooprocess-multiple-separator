@@ -131,6 +131,16 @@ def get_predict_args():
             },
             required=False,
             load_default=31,
+       ),
+      "max_prop_missing": fields.Float(
+            metadata={
+                'description': "A proportion of the area original object. Any\
+                region of the original object(s) that is missed by the panoptic\
+                segmenter and is larger than max_prop_missing * original_area\
+                will be considered as a potential new object. [Default: 0.2]"
+            },
+            required=False,
+            load_default=0.2
        )
     }
 
@@ -202,7 +212,7 @@ def predict(**kwargs):
         masks, score, image, binary_image = utils.predict_panoptic_masks(
             filepaths[i],
             model, processor, device,
-            kwargs['min_mask_score'], kwargs['bottom_crop']
+            kwargs['min_mask_score'], kwargs['bottom_crop'], kwargs['max_prop_missing']
             )
     
         # apply watershed algorithm
