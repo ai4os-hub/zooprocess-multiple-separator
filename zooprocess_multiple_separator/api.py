@@ -107,7 +107,7 @@ def get_predict_args():
     Get the list of arguments for the predict function
     """
     arg_dict = {
-        "images": fields.Field(
+        "images": fields.Raw(
             metadata={
                 'type': "file",
                 'location': "form",
