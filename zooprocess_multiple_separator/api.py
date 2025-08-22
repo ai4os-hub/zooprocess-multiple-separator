@@ -17,12 +17,13 @@ from marshmallow import Schema
 
 import os
 import torch
-import torchvision
+# import torchvision
 import numpy as np
 
 from zooprocess_multiple_separator import config
 from zooprocess_multiple_separator.misc import _catch_error
 from zooprocess_multiple_separator import utils
+from zooprocess_multiple_separator import train as train_file
 
 import zipfile
 from transformers import Mask2FormerForUniversalSegmentation, MaskFormerImageProcessor
@@ -259,8 +260,87 @@ def predict(**kwargs):
 
 # uncomment to make deepaas-cli working
 def get_train_args():
-    return {}
+
+    arg_dict = {
+        "n_epochs": fields.Int(
+            metadata={
+                'description': "Number of training epochs. [Default: 10]"
+            },
+            required=False,
+            missing=10
+        ),
+        "batch_size": fields.Int(
+            metadata={
+                'description': "Number of images in each training batch. Should\
+                probably be as large as the GPU allows. [Default: 128]"
+            },
+            required=False,
+            load_default=16,
+        ),
+        "list_hashtags": fields.List(
+            fields.Str(),
+            metadata={
+                'description': "List of hashtags to train on. [Default: ['plancton']]"
+            },
+            required=False,
+            load_default=["plancton"]
+        ),
+        "model_name": fields.Str(
+            metadata={
+                'description': "name for the model to save (and load). [Default: 'plankton_separator']"
+            },
+            required=False,
+            load_default="plankton_separator"
+        ),
+
+    }
+    
+    return arg_dict
+
 
 #
 # def train(**kwargs):
 #     return None
+
+def train(**kwargs):
+    message = "Message Par Défaut"
+    num_epochs_input = 2
+    results=[]
+    try:
+        num_epochs_input = kwargs.get("n_epoch", 2)
+    #    import sys
+    #    sys.path.append(BASE_DIR)
+#        from zooprocess_multiple_separator.utils.
+        # ret = None
+        
+        # best_model_path = ret["best_model_path"] if ret != None and "best_model_path" in ret else None
+        # now_date = os.path.dirname(best_model_path).lstrip("train_")
+
+        # # Move model_weight in models
+        # model_weight = 'best_model-' + str(now_date) + '.pt'
+        # model_weight_path = os.path.join(BASE_DIR, 'models', model_weight)
+        # import shutil
+        # shutil.copy(best_model_path, model_weight_path)
+        # if not os.path.exists(model_weight_path):
+        #     raise RuntimeError(f"Model weight file {model_weight_path} does not exist (error copy ?) after training.")
+        # else:
+        #     message = "Model weight file found: " + model_weight_path 
+        list_loss=train_file.run_train(
+      data_dir=os.path.join(BASE_DIR, 'data'),
+      out_dir=os.path.join(BASE_DIR, 'models'),
+      device=device,
+      model_name=kwargs['model_name'],
+      n_epochs=kwargs['n_epochs'],
+        list_hashtags=kwargs['list_hashtags'],
+      batch_size=kwargs['batch_size'],
+    )
+        print("api return")
+        print(list_loss)
+        results.append({"loss": list_loss})
+    except Exception as e:
+        print(str(e))
+        logger.error("Error during training: %s", e, exc_info=True)
+        message = "EST-CE LE MESSAGE QUE J'ECRIS QUI S'AFFICHE ???!?!, " + str(e)
+        #raise RuntimeError("Training failed") from e
+    print("en dehors du try except")
+    return results

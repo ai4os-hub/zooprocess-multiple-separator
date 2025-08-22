@@ -10,16 +10,21 @@ import os
 import numpy as np
 from scipy import ndimage as ndi
 
-import torch
-import torchvision
-import torchvision.transforms.v2 as tr
-import torchvision.transforms.v2.functional as trf
-
 from skimage.measure import label
 from skimage.segmentation import watershed, find_boundaries
 
 
+<<<<<<< Updated upstream
 def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=0.9, bottom_crop=31, max_prop_missing=0.2):
+=======
+def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=0.9, bottom_crop=31):
+
+    import torch
+    import torchvision
+    import torchvision.transforms.v2 as tr
+    import torchvision.transforms.v2.functional as trf
+
+>>>>>>> Stashed changes
     """
     Perform the mask segmention for a given image with a panoptic model
     
@@ -141,6 +146,11 @@ def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=
 
 
 def separate_with_watershed(panoptic_masks, overall_mask=None):
+    import torch
+    import torchvision
+    import torchvision.transforms.v2 as tr
+    import torchvision.transforms.v2.functional as trf
+
     """
     Apply the watershed algorithm on the predicted mask map, using the mask
     centers as markers, to generate lines separating the different objects.
