@@ -6,6 +6,7 @@ from mtr.pytorch_detection.custom_datasets import ImageSegmentationDataset
 from torch.utils.data import DataLoader
 import pandas as pd
 import datetime
+import shutil
 
 def load_json(f):
     files = open(f)
@@ -105,7 +106,7 @@ def train_model(name, model, train_dataset, image_processor, batch_size=4,
     return list_loss
 
 
-def run_train(data_dir, out_dir, device, model_name, n_epochs=10, list_hashtags=["plancton"], batch_size=16):
+def run_train(data_dir, out_dir, device, n_epochs=10, list_hashtags=["plancton"], batch_size=16):
     from datasets import Dataset as Ds
     from datasets import Image
 
@@ -137,8 +138,13 @@ def run_train(data_dir, out_dir, device, model_name, n_epochs=10, list_hashtags=
     #from custom_datasets import ImageSegmentationDataset
     train_dataset = ImageSegmentationDataset(dataset, processor, transform=image_transform)
 
+    model_name = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
     list_loss=train_model(model_name, model, train_dataset, processor, batch_size=batch_size,
                 epochs=n_epochs, outdir=out_dir)
+    
+    model_folder_path = os.path.join(out_dir, model_name)
+    shutil.make_archive(model_folder_path, 'zip', model_folder_path)
 
     print("model trained")
 

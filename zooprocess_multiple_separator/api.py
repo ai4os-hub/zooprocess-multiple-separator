@@ -13,7 +13,6 @@ an exemplar module [2].
 from pathlib import Path
 import logging
 from webargs import fields
-from marshmallow import Schema
 
 import os
 import torch
@@ -24,6 +23,8 @@ from zooprocess_multiple_separator import config
 from zooprocess_multiple_separator.misc import _catch_error
 from zooprocess_multiple_separator import utils
 from zooprocess_multiple_separator import train as train_file
+
+from glob import glob
 
 import zipfile
 from transformers import Mask2FormerForUniversalSegmentation, MaskFormerImageProcessor
@@ -78,10 +79,22 @@ def warm():
     # check if a GPU is available, fallback to CPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    # list all models and pick the latest
+    # NB: we only warm-load this one for efficiency purposes
+    model_root = os.path.join(BASE_DIR, 'models', '*')
+    model_paths = [p for p in glob(model_root) if p.endswith('.zip')]
+    model_paths.sort()
+    model_zip_path = model_paths[-1]
+    # NB: get at least one model file from a github release, as per the README
+    
+    # if not os.path.exists(model_path):
+    #     print("Model not found.")
+    # print("Load model ", model_path)
+
     # NB: get the model file from a github release
-    model_zip_path = os.path.join(BASE_DIR,
-                                 'models',
-                                 'learn_plankton_pano_plus5000_8epoch.zip')
+    # model_zip_path = os.path.join(BASE_DIR,
+    #                              'models',
+    #                              'learn_plankton_pano_plus5000_8epoch.zip')
 
     # check that the model file is there, in zipped form
     if not os.path.exists(model_zip_path):
@@ -91,6 +104,7 @@ def warm():
     # if the directory containing the model does not exist,
     # but the zip file does, unzip it
     model_path = model_zip_path[:-4]
+    print("Model path", model_path)
     if not os.path.exists(model_path):
         logger.info("Unzipping model files")
         with zipfile.ZipFile(model_zip_path, 'r') as model_zip:
@@ -148,33 +162,6 @@ def get_predict_args():
     return arg_dict
 
 
-# class OutputSchema(Schema):
-#     name = fields.Str()
-#     separation_coordinates = fields.Tuple(
-#         (fields.List(fields.Int()),fields.List(fields.Int())),
-#         required=True,
-#         metadata={'description': """a list containing two other lists of ints:\
-#         the x and y coordinates of pixels that draw lines on the original image,\
-#         to separate multiple organisms. This list can be used to subset 2D arrays.\
-#         For example, to create a black image with white separation lines, one can write:
-#       import numpy as np
-#       X = np.zeros(image_shape)
-#       X[separation_coordinates] = 1
-#       """}
-#     )
-#     image_shape = fields.Tuple(
-#         (fields.Int(),fields.Int()),
-#         required=True,
-#         metadata={'description': "the height and width of the original image."}
-#     )
-#     score = fields.Float(
-#         required=True,
-#         metadata={'description': "an estimate of the confidence of the network\
-#         for the quality of separation; this is very appropximate (and in [0,1])."}
-#     )
-# 
-# schema = fields.List(fields.Nested(OutputSchema))
-
 @_catch_error
 def predict(**kwargs):
     """
@@ -195,6 +182,7 @@ def predict(**kwargs):
     if data.content_type == 'application/zip':
         # extract
         tmp_input = tempfile.mkdtemp()
+        print("data zip filename", data.filename)
         with zipfile.ZipFile(data.filename, 'r') as zip_file:
             zip_file.extractall(tmp_input)
         # keep only images
@@ -220,28 +208,7 @@ def predict(**kwargs):
         # = from each center find connected regions and their separation
         sep_lines = utils.separate_with_watershed(masks, binary_image)
         # NB: this has 0 as the background and 1 where the separation lines should be drawn
-    
-        # # produce a diagnostic plot
-        # fig, axes = plt.subplots(nrows=2, ncols=2,
-        #                          subplot_kw={'xticks': [], 'yticks': []})
-        # 
-        # axes[0,0].imshow(image, cmap='Greys_r', interpolation='none')
-        # axes[0,0].set_title("Original image (cropped)")
-        # 
-        # axes[0,1].imshow(masks, interpolation='none')
-        # axes[0,1].set_title("Predicted masks")
-        # 
-        # axes[1,1].imshow(sep_lines, interpolation='none')
-        # axes[1,1].set_title("Watershed result")
-        # 
-        # axes[1,0].imshow(image, cmap='Greys_r', interpolation='none')
-        # from matplotlib.colors import ListedColormap
-        # my_cmap = ListedColormap(colors='red')
-        # my_cmap.set_under('k', alpha=0)
-        # axes[1,0].imshow(sep_lines, cmap=my_cmap, interpolation='none', clim=[0.1,10])
-        # axes[1,0].set_title("Final separation")
-        # 
-        # plt.show()
+
     
         # encode the lines to draw as a sparse image
         sep_coords = np.where(sep_lines==1)
@@ -285,13 +252,6 @@ def get_train_args():
             required=False,
             load_default=["plancton"]
         ),
-        "model_name": fields.Str(
-            metadata={
-                'description': "name for the model to save (and load). [Default: 'plankton_separator']"
-            },
-            required=False,
-            load_default="plankton_separator"
-        ),
 
     }
     
@@ -303,33 +263,14 @@ def get_train_args():
 #     return None
 
 def train(**kwargs):
-    message = "Message Par Défaut"
-    num_epochs_input = 2
+
     results=[]
     try:
-        num_epochs_input = kwargs.get("n_epoch", 2)
-    #    import sys
-    #    sys.path.append(BASE_DIR)
-#        from zooprocess_multiple_separator.utils.
-        # ret = None
-        
-        # best_model_path = ret["best_model_path"] if ret != None and "best_model_path" in ret else None
-        # now_date = os.path.dirname(best_model_path).lstrip("train_")
 
-        # # Move model_weight in models
-        # model_weight = 'best_model-' + str(now_date) + '.pt'
-        # model_weight_path = os.path.join(BASE_DIR, 'models', model_weight)
-        # import shutil
-        # shutil.copy(best_model_path, model_weight_path)
-        # if not os.path.exists(model_weight_path):
-        #     raise RuntimeError(f"Model weight file {model_weight_path} does not exist (error copy ?) after training.")
-        # else:
-        #     message = "Model weight file found: " + model_weight_path 
         list_loss=train_file.run_train(
       data_dir=os.path.join(BASE_DIR, 'data'),
       out_dir=os.path.join(BASE_DIR, 'models'),
       device=device,
-      model_name=kwargs['model_name'],
       n_epochs=kwargs['n_epochs'],
         list_hashtags=kwargs['list_hashtags'],
       batch_size=kwargs['batch_size'],
@@ -340,7 +281,6 @@ def train(**kwargs):
     except Exception as e:
         print(str(e))
         logger.error("Error during training: %s", e, exc_info=True)
-        message = "EST-CE LE MESSAGE QUE J'ECRIS QUI S'AFFICHE ???!?!, " + str(e)
-        #raise RuntimeError("Training failed") from e
     print("en dehors du try except")
-    return results
+
+    return None

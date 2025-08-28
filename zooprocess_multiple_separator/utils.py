@@ -14,17 +14,14 @@ from skimage.measure import label
 from skimage.segmentation import watershed, find_boundaries
 
 
-<<<<<<< Updated upstream
+
 def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=0.9, bottom_crop=31, max_prop_missing=0.2):
-=======
-def predict_panoptic_masks(image_path, model, processor, device, min_mask_score=0.9, bottom_crop=31):
 
     import torch
     import torchvision
     import torchvision.transforms.v2 as tr
     import torchvision.transforms.v2.functional as trf
 
->>>>>>> Stashed changes
     """
     Perform the mask segmention for a given image with a panoptic model
     
