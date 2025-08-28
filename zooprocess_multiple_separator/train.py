@@ -8,6 +8,8 @@ import pandas as pd
 import datetime
 import shutil
 
+from tensorboardX import SummaryWriter
+
 def load_json(f):
     files = open(f)
     data = json.load(files)
@@ -51,7 +53,7 @@ def collate_fn(batch):
             "mask_labels": mask_labels}
 
 
-def train_model(name, model, train_dataset, image_processor, batch_size=4,
+def train_model(name, model, train_dataset, image_processor, writer, batch_size=4,
                 epochs=6, outdir=""):
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn, num_workers=8)
     import torch
@@ -89,6 +91,7 @@ def train_model(name, model, train_dataset, image_processor, batch_size=4,
             num_samples += batch_size
 
             list_loss.append(running_loss / num_samples)
+            writer.add_scalar("scalars/loss", (running_loss / num_samples), epoch)
             if idx % 50 == 0:
                 print("Loss:", running_loss / num_samples, flush=True)
 
@@ -101,8 +104,7 @@ def train_model(name, model, train_dataset, image_processor, batch_size=4,
             image_processor.save_pretrained(path_save_model)
 
     print("fin de l'entrainement")
-    #df_res=pd.DataFrame({"loss": list_loss})
-    print("calcul du df fait")
+
     return list_loss
 
 
@@ -110,6 +112,7 @@ def run_train(data_dir, out_dir, device, n_epochs=10, list_hashtags=["plancton"]
     from datasets import Dataset as Ds
     from datasets import Image
 
+    writer = SummaryWriter(logdir=out_dir, flush_secs=1)
 
     ## Load data ----
     print('Create datasets')
@@ -121,8 +124,9 @@ def run_train(data_dir, out_dir, device, n_epochs=10, list_hashtags=["plancton"]
     list_label_images = [f.replace('/images', "/labels").replace("jpg", "png") for f in list_images]
     list_seg_info = [f.replace('/images', "/seg_info").replace("jpg", "json") for f in list_images]
 
-    #print(list_seg_info)
     sys.stdout.flush()
+
+
 
     print(list_seg_info[:15])
 
@@ -140,13 +144,15 @@ def run_train(data_dir, out_dir, device, n_epochs=10, list_hashtags=["plancton"]
 
     model_name = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
-    list_loss=train_model(model_name, model, train_dataset, processor, batch_size=batch_size,
+    list_loss=train_model(model_name, model, train_dataset, processor,writer=writer, batch_size=batch_size,
                 epochs=n_epochs, outdir=out_dir)
     
     model_folder_path = os.path.join(out_dir, model_name)
     shutil.make_archive(model_folder_path, 'zip', model_folder_path)
 
     print("model trained")
+
+    writer.close()
 
 
     return list_loss
