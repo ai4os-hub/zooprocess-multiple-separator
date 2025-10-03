@@ -50,6 +50,15 @@ X = np.zeros(shape)
 X[sep_coords] = 1
 plt.clf(); plt.imshow(X); plt.show()
 
+# display it with a red line
+img = np.repeat(image[:,:,np.newaxis]/255, 3, axis=2)
+# set those to pure red
+img[:,:,0][sep_coords] = 1
+img[:,:,1][sep_coords] = 0
+img[:,:,2][sep_coords] = 0
+# and ploth the result
+plt.clf(); plt.imshow(img); plt.show()
+
 
 ## Test API ----
 
