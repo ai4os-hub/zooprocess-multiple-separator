@@ -24,14 +24,20 @@ image_path = "/home/jiho/datasets/juday/images/612787652.jpg"
 
 from zooprocess_multiple_separator import utils
 reload(utils)
+import time
+start_time = time.time()
 masks, score, image, binary_image = \
     utils.predict_panoptic_masks(image_path=image_path,
     model=model, processor=processor, device=device, min_mask_score=0.9, bottom_crop=31)
+print(time.time() - start_time)
+
 print(score)
 plt.clf(); plt.imshow(image, cmap='Greys_r', interpolation='none'); plt.show()
 plt.clf(); plt.imshow(binary_image, cmap='Greys_r', interpolation='none'); plt.show()
 plt.clf(); plt.imshow(masks); plt.show()
+start_time = time.time()
 sep_lines = utils.separate_with_watershed(masks, binary_image)
+print(time.time() - start_time)
 plt.clf(); plt.imshow(sep_lines); plt.show()
 
 # encode sep lines
