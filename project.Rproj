@@ -16,5 +16,5 @@ AutoAppendNewline: Yes
 StripTrailingWhitespace: Yes
 
 PythonType: conda
-PythonVersion: 3.11.9
-PythonPath: ~/.conda/envs/zooprocess_multiple/bin/python3.11
+PythonVersion: 3.12.8
+PythonPath: /opt/homebrew/Caskroom/miniconda/base/envs/zooprocess_multiple/bin/python3.12
