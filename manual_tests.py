@@ -21,6 +21,8 @@ device=api.device
 ## Test underlying functions ----
 image_path = "../test_images/m_1245.jpg"
 image_path = "/home/jiho/datasets/juday/images/612787652.jpg"
+# image_path = "../test_remaining_pixels_in_sep/cuts_before_sep_dyfamed_20240114_100m_d1_1_x2838y1BC8w110h102.png"
+
 
 from zooprocess_multiple_separator import utils
 reload(utils)
@@ -35,15 +37,20 @@ print(score)
 plt.clf(); plt.imshow(image, cmap='Greys_r', interpolation='none'); plt.show()
 plt.clf(); plt.imshow(binary_image, cmap='Greys_r', interpolation='none'); plt.show()
 plt.clf(); plt.imshow(masks); plt.show()
+
+
 start_time = time.time()
 sep_lines = utils.separate_with_watershed(masks, binary_image)
 print(time.time() - start_time)
+# panoptic_masks = masks
+# overall_mask = binary_image
 plt.clf(); plt.imshow(sep_lines); plt.show()
 
 # encode sep lines
 sep_coords = np.where(sep_lines==1)
 sep_coords = tuple([sep.tolist() for sep in sep_coords])
 shape = sep_lines.shape
+
 
 # reconstruct the separation image
 X = np.zeros(shape)
@@ -58,6 +65,7 @@ img[:,:,1][sep_coords] = 0
 img[:,:,2][sep_coords] = 0
 # and ploth the result
 plt.clf(); plt.imshow(img); plt.show()
+
 
 
 ## Test API ----

@@ -16,7 +16,7 @@ ARG tag=2.7.0-cuda12.6-cudnn9-runtime
 FROM pytorch/pytorch:${tag}
 
 LABEL maintainer='Jean-Olivier Irisson,Marine Colin,Emma Amblard,Victor Reutenauer'
-LABEL version='1.4.0'
+LABEL version='1.5.0'
 
 # What user branch to clone [!]
 ARG branch=main
