@@ -76,8 +76,8 @@ RUN git clone -b $branch https://github.com/ai4os-hub/zooprocess-multiple-separa
 # Download weights from github release
 ADD https://github.com/ai4os-hub/zooprocess-multiple-separator/releases/download/v1.0.0/learn_plankton_pano_plus5000_8epoch.zip /srv/zooprocess-multiple-separator/models/learn_plankton_pano_plus5000_8epoch.zip
 
-# Open ports: DEEPaaS (5000), Monitoring (6006), Jupyter (8888)
-EXPOSE 5000 6006 8888
+# Open ports: DEEPaaS (5001), Monitoring (6006), Jupyter (8888)
+EXPOSE 5001 6006 8888
 
 # Launch deepaas
 CMD ["deepaas-run", "--listen-ip", "0.0.0.0", "--listen-port", "5001"]
