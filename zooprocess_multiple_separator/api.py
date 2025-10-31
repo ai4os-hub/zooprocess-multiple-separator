@@ -16,7 +16,6 @@ from webargs import fields
 
 import os
 import torch
-import torchvision
 import numpy as np
 
 from zooprocess_multiple_separator import config
@@ -24,7 +23,10 @@ from zooprocess_multiple_separator.misc import _catch_error
 from zooprocess_multiple_separator import utils
 
 import zipfile
-from transformers import Mask2FormerForUniversalSegmentation, MaskFormerImageProcessor
+from transformers import (
+    Mask2FormerForUniversalSegmentation,
+    MaskFormerImageProcessor
+)
 
 # set up logging
 logger = logging.getLogger(__name__)
@@ -36,6 +38,7 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 model = None
 processor = None
 device = None
+
 
 @_catch_error
 def get_metadata():
@@ -70,34 +73,39 @@ def warm():
     Load model upon application startup
     """
 
-    # make sure the objects are available everywhere after the application starts
+    # make sure the objects are available everywhere after the
+    # application starts
     global model, processor, device
 
     # check if a GPU is available, fallback to CPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # NB: get the model file from a github release
-    model_zip_path = os.path.join(BASE_DIR,
-                                 'models',
-                                 'learn_plankton_pano_plus5000_8epoch.zip')
+    model_zip_path = os.path.join(
+        BASE_DIR,
+        'models',
+        'learn_plankton_pano_plus5000_8epoch.zip'
+    )
 
     # check that the model file is there, in zipped form
     if not os.path.exists(model_zip_path):
         logger.error("Zip file of model not found.")
         return None
-    
+
     # if the directory containing the model does not exist,
     # but the zip file does, unzip it
     model_path = model_zip_path[:-4]
     if not os.path.exists(model_path):
         logger.info("Unzipping model files")
         with zipfile.ZipFile(model_zip_path, 'r') as model_zip:
-            model_zip.extractall(model_zip_path.strip(model_zip_path.split("/")[-1]))    
+            model_zip.extractall(
+                model_zip_path.strip(model_zip_path.split("/")[-1])
+            )
 
     # load the model (possibly on GPU)
     logger.info("Loading model")
-    processor = MaskFormerImageProcessor.from_pretrained(model_path) # nosec B615
-    model = Mask2FormerForUniversalSegmentation.from_pretrained(model_path) # nosec B615
+    processor = MaskFormerImageProcessor.from_pretrained(model_path)  # nosec B615
+    model = Mask2FormerForUniversalSegmentation.from_pretrained(model_path)  # nosec B615
     model = model.to(device)
 
 
@@ -110,37 +118,39 @@ def get_predict_args():
             metadata={
                 'type': "file",
                 'location': "form",
-                'description': "A zip file containing the images to classify (all\
-                images should be at the root of the zip file) or a single image file."
+                'description': "A zip file containing the images to classify \
+                (all images should be at the root of the zip file) or a single\
+                image file."
             },
             required=True
         ),
-       "min_mask_score": fields.Float(
+        "min_mask_score": fields.Float(
             metadata={
                 'description': "The minimum confidence score for a mask to be\
                 selected. [Default: 0.9]"
             },
             required=False,
             load_default=0.9
-       ),
-       "bottom_crop": fields.Int(
+        ),
+        "bottom_crop": fields.Int(
             metadata={
-                'description': "Number of pixels to crop from the bottom of the\
-                image (e.g. to remove the scale bar). [Default: 31px]"
+                'description': "Number of pixels to crop from the bottom of\
+                the image (e.g. to remove the scale bar). [Default: 31px]"
             },
             required=False,
             load_default=31,
-       ),
-      "max_prop_missing": fields.Float(
+        ),
+        "max_prop_missing": fields.Float(
             metadata={
                 'description': "A proportion of the area original object. Any\
-                region of the original object(s) that is missed by the panoptic\
-                segmenter and is larger than max_prop_missing * original_area\
+                region of the original object(s) that is missed by the\
+                panoptic segmenter and is larger than\
+                max_prop_missing * original_area\
                 will be considered as a potential new object. [Default: 0.2]"
             },
             required=False,
             load_default=0.2
-       )
+        )
     }
 
     return arg_dict
@@ -150,14 +160,14 @@ def get_predict_args():
 def predict(**kwargs):
     """
     Compute the white lines to separate objects
-    
+
     Args:
         See get_predict_args() above.
-    
+
     Returns:
         See schema, above.
     """
-    
+
     import tempfile
     data = kwargs['images']
 
@@ -170,7 +180,8 @@ def predict(**kwargs):
             zip_file.extractall(tmp_input)
         # keep only images
         filenames = sorted(os.listdir(tmp_input))
-        filenames = [file for file in filenames if file.endswith(('jpg', 'png', 'jpeg'))]
+        filenames = [file for file in filenames if
+                     file.endswith(('jpg', 'png', 'jpeg'))]
         filepaths = [os.path.join(tmp_input, name) for name in filenames]
     # or as a single item
     else:
@@ -184,41 +195,45 @@ def predict(**kwargs):
         masks, score, image, binary_image = utils.predict_panoptic_masks(
             filepaths[i],
             model, processor, device,
-            kwargs['min_mask_score'], kwargs['bottom_crop'], kwargs['max_prop_missing']
+            kwargs['min_mask_score'],
+            kwargs['bottom_crop'],
+            kwargs['max_prop_missing']
             )
-    
+
         # apply watershed algorithm
         # = from each center find connected regions and their separation
         sep_lines = utils.separate_with_watershed(masks, binary_image)
-        # NB: this has 0 as the background and 1 where the separation lines should be drawn
-    
+        # NB: this has 0 as the background and 1 where the separation lines
+        #     should be drawn
+
         # # produce a diagnostic plot
         # fig, axes = plt.subplots(nrows=2, ncols=2,
         #                          subplot_kw={'xticks': [], 'yticks': []})
-        # 
+        #
         # axes[0,0].imshow(image, cmap='Greys_r', interpolation='none')
         # axes[0,0].set_title("Original image (cropped)")
-        # 
+        #
         # axes[0,1].imshow(masks, interpolation='none')
         # axes[0,1].set_title("Predicted masks")
-        # 
+        #
         # axes[1,1].imshow(sep_lines, interpolation='none')
         # axes[1,1].set_title("Watershed result")
-        # 
+        #
         # axes[1,0].imshow(image, cmap='Greys_r', interpolation='none')
         # from matplotlib.colors import ListedColormap
         # my_cmap = ListedColormap(colors='red')
         # my_cmap.set_under('k', alpha=0)
-        # axes[1,0].imshow(sep_lines, cmap=my_cmap, interpolation='none', clim=[0.1,10])
+        # axes[1,0].imshow(sep_lines, cmap=my_cmap, interpolation='none',
+        #                  clim=[0.1,10])
         # axes[1,0].set_title("Final separation")
-        # 
+        #
         # plt.show()
-    
+
         # encode the lines to draw as a sparse image
-        sep_coords = np.where(sep_lines==1)
+        sep_coords = np.where(sep_lines == 1)
         sep_coords = tuple([sep.tolist() for sep in sep_coords])
         shape = sep_lines.shape
-        
+
         results.append({
             "name": filenames[i],
             "separation_coordinates": sep_coords,

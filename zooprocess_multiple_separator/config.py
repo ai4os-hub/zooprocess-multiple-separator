@@ -24,7 +24,7 @@ _AUTHORS = API_METADATA.get("Author", "").replace(", ", ",").split(",")
 _AUTHORS = [] if _AUTHORS == [""] else _AUTHORS
 _AUTHORS += API_METADATA["Author-emails"].keys()
 # the order should be the same as defined in the pyproject.toml
-#API_METADATA["Authors"] = sorted(_AUTHORS)
+# API_METADATA["Authors"] = sorted(_AUTHORS)
 API_METADATA["Authors"] = _AUTHORS
 
 # logging level across API modules can be setup via API_LOG_LEVEL,

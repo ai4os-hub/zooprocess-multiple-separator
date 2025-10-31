@@ -1,5 +1,3 @@
-version: "3.6"
-
 services:
   thisrepo-testing:
     image: "ai4oshub/ci-images:python3.12"
