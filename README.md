@@ -54,7 +54,7 @@ Getting the image works through
 docker pull ai4oshub/zooprocess-multiple-separator:latest
 ```
 
-When running the docker image, map port 5001 from inside the docker to a port on the machine running docker (e.g. 55001). Then replace `http://localhost:5001` above by the ip/name of the machine and the port you mapped 5001 to (55001 in the example above). As above, this uses port 55001 to avoid conflicts if you already run the docker for [zooprocess-multiple-classifier](https://github.com/ai4os-hub/zooprocess-multiple-classifier) on port 55000.
+When running the docker image, map port 5000 from inside the docker (NB: this is now 5000, which is the standard port, not 5001 like above) to a port on the machine running docker (e.g. 55001). Then replace `http://localhost:5001` above by the ip/name of the machine and the port you mapped 5000 to (55001 in the example above). As above, this uses port 55001 to avoid conflicts if you already run the docker for [zooprocess-multiple-classifier](https://github.com/ai4os-hub/zooprocess-multiple-classifier) on port 55000.
 
 <img src="illustration_separator.png" style="width: 100%;" alt="illustration" />
 
