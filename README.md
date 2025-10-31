@@ -36,7 +36,7 @@ mv learn_plankton_pano_plus5000_8epoch.zip models/
 Run [DEEPaaS](https://github.com/ai4os/DEEPaaS):
 
 ```bash
-deepaas-run --listen-port 5001 --model-name zooprocess_multiple_separator
+deepaas-run --listen-ip 0.0.0.0 --listen-port 5001 --model-name zooprocess_multiple_separator
 ```
 
 NB: the port is set to 5001 rather than the default 5000 so that it does not conflict with the module [zooprocess-multiple-classifier](https://github.com/ai4os-hub/zooprocess-multiple-classifier) that you would probably also be using.
