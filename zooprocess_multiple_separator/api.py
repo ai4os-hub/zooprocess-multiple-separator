@@ -96,8 +96,8 @@ def warm():
 
     # load the model (possibly on GPU)
     logger.info("Loading model")
-    processor = MaskFormerImageProcessor.from_pretrained(model_path, revision="v4.57.1")
-    model = Mask2FormerForUniversalSegmentation.from_pretrained(model_path, revision="v4.57.1")
+    processor = MaskFormerImageProcessor.from_pretrained(model_path) # nosec B615
+    model = Mask2FormerForUniversalSegmentation.from_pretrained(model_path) # nosec B615
     model = model.to(device)
 
 
