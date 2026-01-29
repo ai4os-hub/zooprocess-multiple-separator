@@ -7,8 +7,6 @@ description: |-
   The segmentation is based on Mask2Former, in panoptic mode, but the resulting detections are further processed to match the original objects to the pixel and draw the separation lines.
 
   <img class='fit', src='https://raw.githubusercontent.com/ai4os-hub/zooprocess-multiple-separator/main/illustration_separator.png'/>
-  
-# doi: http://add-some-DOI-url.com
 dates:
   created: '2024-09-20'
   updated: '2024-10-16'
@@ -17,15 +15,17 @@ links:
   source_code: https://github.com/ai4os-hub/zooprocess-multiple-separator
   docker_image: ai4oshub/zooprocess-multiple-separator
   base_model: https://arxiv.org/pdf/2112.01527
+  zenodo_doi: https://doi.org/10.5281/zenodo.18232041
 tags:
-  - deep learning
-  - vo.imagine-ai.eu
+- deep learning
+- vo.imagine-ai.eu
 tasks:
-  - Computer Vision
+- Computer Vision
 categories:
-  - AI4 pre trained
-  - AI4 inference
+- AI4 pre trained
+- AI4 inference
 libraries:
-  - PyTorch
+- PyTorch
 data-type:
-  - Image
+- Image
+doi: 10.5281/zenodo.18232041
